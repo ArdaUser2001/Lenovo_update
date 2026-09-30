@@ -1,0 +1,16 @@
+﻿STATISCHE PRÜFUNG · 30.09.2026
+
+- Validieren.ps1: Tree-sitter-Syntaxprüfung erfolgreich; UTF-8-BOM vorhanden
+- Update-Assistent.ps1: Tree-sitter-Syntaxprüfung erfolgreich; UTF-8-BOM vorhanden
+- LenovoTools.psm1: Tree-sitter-Syntaxprüfung erfolgreich; UTF-8-BOM vorhanden
+- Updates.psm1: Tree-sitter-Syntaxprüfung erfolgreich; UTF-8-BOM vorhanden
+- WindowsUpdate.psm1: Tree-sitter-Syntaxprüfung erfolgreich; UTF-8-BOM vorhanden
+- XAML-Wohlgeformtheit, 21 Steuerelementnamen und 17 Aktionszuordnungen geprüft
+- Acht Bereiche; fünf manuell zu bestätigen und drei mit automatischen Aktionen; Installationsschaltfläche an Suche gebunden
+- Alle ursprünglichen Dokumentelemente und Bilder unverändert erhalten
+- Paketdateien vollständig
+- Konfigurationsvergleiche, Updatefilter, Countdown-Abbruch und nicht erzwungener Neustart statisch kontrolliert
+
+Nicht durchgeführt: Windows-PowerShell-5.1-Laufzeitprüfung, WPF-Rendering, UAC und echte Update-Installationen.
+Die Prüfungen hier liefen unter Linux mit einem PowerShell-Grammatikparser.
+Die Windows-Abnahme ist in IT-Testplan.md beschrieben; Validieren.ps1 verwendet den nativen Parser auf dem Zielgerät.
