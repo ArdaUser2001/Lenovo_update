@@ -10,6 +10,8 @@ param(
     [string]$RunDirectory,
     [switch]$Resume
 )
+
+# Bootstrapping: GUI mode loads WPF; worker modes delegate to Module/Updates.psm1.
 $ErrorActionPreference = 'Stop'
 $script:ScriptPath = $PSCommandPath
 $script:BaseDirectory = $PSScriptRoot
@@ -20,15 +22,28 @@ if ($Mode -ne 'Gui') {
     exit 0
 }
 
+function Stop-Startup([string]$Message) {
+    Write-Error ("Der Assistent konnte nicht gestartet werden.`n`n{0}`n`nNutzen Sie die manuelle Anleitung." -f $Message)
+    exit 1
+}
+
+# WPF assemblies exist only on Windows. Check this before Add-Type so macOS/Linux
+# PowerShell does not try to resolve PresentationFramework.dll from the script folder.
+if ($env:OS -ne 'Windows_NT') { Stop-Startup 'Dieser Assistent muss auf Windows 11 mit Windows PowerShell 5.1 gestartet werden.' }
+if ([Environment]::OSVersion.Version.Build -lt 22000) { Stop-Startup 'Dieser Assistent ist für Windows 11 vorgesehen.' }
+if ([Threading.Thread]::CurrentThread.ApartmentState -ne 'STA') { Stop-Startup 'Bitte über UPDATE-ASSISTENT-STARTEN.cmd öffnen.' }
+
 Add-Type -AssemblyName @('PresentationFramework','PresentationCore','WindowsBase')
+
+# XamlReader.Load is used instead of code-behind so the assistant can ship as scripts plus XAML.
 function Load-XamlDocument([string]$Path) {
     $xml = [xml](Get-Content -LiteralPath $Path -Raw -Encoding UTF8)
     $reader = New-Object System.Xml.XmlNodeReader $xml
     [Windows.Markup.XamlReader]::Load($reader)
 }
+
+# Startup guard: validate host, create the session folder, load resources, and find named controls.
 try {
-    if ([Environment]::OSVersion.Version.Build -lt 22000) { throw 'Dieser Assistent ist für Windows 11 vorgesehen.' }
-    if ([Threading.Thread]::CurrentThread.ApartmentState -ne 'STA') { throw 'Bitte über UPDATE-ASSISTENT-STARTEN.cmd öffnen.' }
     $script:GuiMutex = New-Object System.Threading.Mutex($false, ('Local\WFW.UpdateAssistent.' + [Security.Principal.WindowsIdentity]::GetCurrent().User.Value))
     if (-not $script:GuiMutex.WaitOne(0, $false)) {
         [Windows.MessageBox]::Show('Der Update-Assistent ist bereits geöffnet. Wechseln Sie zum vorhandenen Fenster.','Bereits geöffnet') | Out-Null
@@ -57,6 +72,7 @@ try {
     exit 1
 }
 
+# Step data: these objects drive the wizard navigation, action buttons, and manual confirmations.
 $script:Steps = @(
     @{Title='1 · Windows aktualisieren'; Mode='Der Assistent sucht und installiert für Sie'; Text="Willkommen! Gehen Sie die acht Schritte nacheinander durch. Es startet nichts, bevor Sie eine Aktion auswählen und bestätigen.`n`n1. Speichern Sie Ihre Dokumente und schließen Sie andere Programme.`n2. Schließen Sie das Ladekabel an und verbinden Sie den Computer mit dem Internet.`n3. Klicken Sie auf «Windows-Updates starten» und lesen Sie die Rückfrage.`n`nFalls ein Neustart nötig ist, startet der Computer nach 120 Sekunden neu. «Neustart verschieben» stoppt den Countdown. Melden Sie sich danach wieder an und prüfen Sie Windows hier erneut."; Actions=@(@{Id='Windows';Label='Windows-Updates starten'},@{Id='WindowsUpdate';Label='Windows Update selbst öffnen'}); Manual=$false},
     @{Title='2 · Geräte und Treiber'; Mode='Sie prüfen die Angebote in einem Windows-Fenster'; Text="Treiber helfen Windows, Geräte wie Bildschirm, Drucker und Lautsprecher zu verwenden.`n`n1. Klicken Sie auf «Optionale Updates öffnen».`n2. Öffnen Sie dort «Treiberupdates», falls dieser Eintrag angezeigt wird.`n3. Installieren Sie nur Treiber, die Sie benötigen. Sind Sie unsicher, fragen Sie IT Germany.`n4. Warten Sie, bis die Installation beendet ist. Kehren Sie dann hierher zurück und setzen Sie unten das Häkchen.`n`nKeine Treiber angeboten? Dann können Sie die Prüfung ebenfalls bestätigen."; Actions=@(@{Id='Treiber';Label='Optionale Updates öffnen'}); Manual=$true},
@@ -80,6 +96,8 @@ $script:StepsByLanguage = @{
         @{Title='8 · Finish'; Mode='You check whether anything is still required'; Text="1. Click ""Open Windows Update"". Follow notices about more updates or a required restart.`n2. If a restart is requested: Save your work. Click Start in Windows, then Power, then ""Restart"".`n3. Check Windows updates again after the restart. Open the assistant again with the start file if needed.`n4. Confirm your final check below. ""View summary"" opens this session's results.`n`nOpen or failed steps mean that something still needs to be checked. The summary is not proof that the computer is fully protected."; Actions=@(@{Id='WindowsUpdate';Label='Open Windows Update'},@{Id='History';Label='View previous updates'},@{Id='Options';Label='More Windows settings'}); Manual=$true}
     )
 }
+
+# Localized copy. The logic stores states in German keys, then maps them for display.
 $script:Language = 'de'
 $script:UiText = @{
     de = @{
@@ -90,6 +108,8 @@ $script:UiText = @{
     }
 }
 $script:Steps = $script:StepsByLanguage[$script:Language]
+
+# View model state for the eight wizard sections.
 $script:States = @($script:Steps | ForEach-Object { 'Offen' })
 $script:Messages = @($script:Steps | ForEach-Object { 'Noch nicht bearbeitet.' })
 $script:DetailLogs = @($script:Steps | ForEach-Object { '' })
@@ -102,6 +122,7 @@ $script:HasScan = $false
 $script:NavStatus = @()
 $script:Events = New-Object 'System.Collections.Generic.List[string]'
 
+# State display helpers: translate internal state keys to localized labels and icon glyphs.
 function Get-UiText([string]$Key) {
     $text = $script:UiText[$script:Language][$Key]
     if ($null -eq $text) { $text = $script:UiText.de[$Key] }
@@ -135,6 +156,7 @@ function Get-StateIcon([string]$State) {
     }
 }
 
+# Static text and accessibility names are refreshed whenever the language changes.
 function Set-ControlText([string]$Name, [string]$Property, [string]$Text) {
     if ($script:Ui[$Name]) { $script:Ui[$Name].$Property = $Text }
 }
@@ -186,6 +208,7 @@ function Set-Language([string]$Language) {
     Show-Step
 }
 
+# Dialog/action copy that is not tied to a specific step.
 function Get-ActionMessage([string]$Key) {
     $messages = @{
         de = @{
@@ -252,6 +275,7 @@ function Get-StartDialog([string]$Task, [string]$ToolName) {
     @{ Title=$dialogs[$script:Language].DefenderTitle; Message=$dialogs[$script:Language].DefenderMessage }
 }
 
+# Session reporting helpers: keep a local summary for IT support and user review.
 function Add-Event([string]$Message) {
     $script:Events.Add(('[' + (Get-Date -Format 'HH:mm:ss') + '] ' + $Message))
 }
@@ -263,6 +287,7 @@ function Save-Report {
     $lines | Set-Content -LiteralPath (Join-Path $script:SessionDirectory 'Zusammenfassung.txt') -Encoding UTF8
 }
 
+# UI rendering: rebuild buttons for the current step and refresh progress/navigation state.
 function Refresh-Progress {
     $done = @($script:States | Where-Object { $_ -eq 'Benutzer bestätigt' -or $_ -eq 'Automatisch bearbeitet' }).Count
     for ($i=0; $i -lt $script:NavStatus.Count; $i++) {
@@ -315,6 +340,7 @@ function Show-Step {
     Refresh-Progress
 }
 
+# External targets and worker orchestration.
 function Open-Target([string]$Target, [string]$Text) {
     try {
         Start-Process -FilePath $Target -ErrorAction Stop | Out-Null
@@ -432,6 +458,7 @@ function Invoke-StepAction([string]$Action) {
     }
 }
 
+# Poll the hidden worker process and translate result.json into wizard state.
 $script:Timer = New-Object Windows.Threading.DispatcherTimer
 $script:Timer.Interval = [TimeSpan]::FromSeconds(1)
 $script:Timer.Add_Tick({
@@ -481,6 +508,7 @@ $script:Timer.Add_Tick({
     }
 })
 
+# Restart/resume handling. Windows updates can request a reboot; the assistant saves state first.
 $script:RestartPending = $false
 $script:ResumePath = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'WFW\Update-Assistent\Fortsetzen.json'
 $script:RestartTimer = New-Object Windows.Threading.DispatcherTimer
@@ -555,6 +583,7 @@ $script:RestartTimer.Add_Tick({
 })
 $script:Ui.CancelRestart.Add_Click({ Stop-RestartCountdown })
 
+# Navigation list construction. Items are generated in PowerShell so localized titles can update live.
 $script:NavStatus = @()
 foreach ($step in $script:Steps) {
     $item = New-Object Windows.Controls.ListBoxItem
@@ -592,6 +621,8 @@ foreach ($step in $script:Steps) {
     $script:Ui.Navigation.Items.Add($item) | Out-Null
     $script:NavStatus += @{ Caption = $caption; Icon = $icon }
 }
+
+# Event wiring: connect XAML controls to the PowerShell controller functions.
 $script:Ui.Navigation.Add_SelectionChanged({
     if ($script:Ui.Navigation.SelectedIndex -ge 0 -and -not $script:Busy) {
         $script:Index = $script:Ui.Navigation.SelectedIndex
@@ -636,6 +667,8 @@ $script:Window.Add_Closing({ param($sender,$eventArgs)
         [Windows.MessageBox]::Show((Get-UiText 'BusyClose'), (Get-UiText 'BusyCloseTitle')) | Out-Null
     } else { $script:Timer.Stop(); try { Save-Report } catch { } }
 })
+
+# Final startup: apply language, restore after reboot if needed, and show the modal WPF window.
 Apply-StaticText
 if ($Resume) { Restore-Session }
 $script:Ui.Navigation.SelectedIndex = 0

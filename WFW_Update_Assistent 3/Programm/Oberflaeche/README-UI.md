@@ -1,11 +1,27 @@
 # WFW Update-Assistent UI
 
+This folder contains the visual layer for the assistant. The PowerShell script loads the dictionaries first, then the window layout, and finally wires events to the named controls.
+
+## Project structure
+
+- `../Update-Assistent.ps1` is the GUI controller and restart/resume coordinator.
+- `../Module/Updates.psm1` is the child-process worker entry point for long-running update tasks.
+- `../Module/WindowsUpdate.psm1` contains the Windows Update COM flow and policy safety checks.
+- `../Module/LenovoTools.psm1` detects, installs, and opens Lenovo helper tools.
+- `../Assets/Logo.png` is the header logo used by `Logo` in the XAML.
+
 ## File overview
 
 - `Theme.xaml` contains all visual tokens: colors, brushes, fonts, spacing, corner radii, type sizes, and layout constants. Change the brand color by editing the single `BrandColor` line.
 - `Styles.xaml` contains reusable WPF styles for cards, chips, buttons, check boxes, navigation items, expanders, progress bars, text boxes, and the language selector.
-- `../Oberflaeche.xaml` contains layout only. It has no code-behind, no `x:Class`, and no event handlers.
+- `../Oberflaeche.xaml` contains layout only. It has no code-behind, no `x:Class`, and no event handlers. Section comments mark the header, navigation rail, content pane, status area, and footer.
 - `../Update-Assistent.ps1` loads `Theme.xaml`, then `Styles.xaml`, then `Oberflaeche.xaml` with `XamlReader`. The dictionaries are added to `Application.Current.Resources` before loading the window because runtime `XamlReader` does not resolve relative pack URIs.
+
+## Comments and ownership
+
+- XAML comments explain layout regions and runtime dependencies.
+- PowerShell comments explain file responsibilities, safety gates, child-process handoff, and GUI state transitions.
+- Avoid comments that restate a single property; prefer comments that explain why a block exists or how files depend on one another.
 
 ## Change colors, fonts, or spacing
 

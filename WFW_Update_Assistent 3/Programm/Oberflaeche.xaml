@@ -9,6 +9,7 @@
         Foreground="{DynamicResource TextBrush}"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
+  <!-- Main window shell: three rows for header, wizard body, and footer actions. -->
   <Grid Margin="24">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
@@ -16,6 +17,7 @@
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
+    <!-- Header: logo, localized title/subtitle, language selector, and platform badge. -->
     <Border Grid.Row="0" Style="{StaticResource Card}" Padding="18" Margin="0,0,0,16">
       <Grid>
         <Grid.ColumnDefinitions>
@@ -23,35 +25,69 @@
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Border Width="196" Height="60" Background="{StaticResource SurfaceSoftBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" CornerRadius="{StaticResource RadiusMedium}" Padding="12">
+
+        <Border Width="196"
+                Height="60"
+                Background="{StaticResource SurfaceSoftBrush}"
+                BorderBrush="{StaticResource BorderBrushSoft}"
+                BorderThickness="1"
+                CornerRadius="{StaticResource RadiusMedium}"
+                Padding="12">
           <Image x:Name="Logo" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
+
         <StackPanel Grid.Column="1" Margin="18,0,18,0" VerticalAlignment="Center">
-          <TextBlock x:Name="AppTitle" Text="Update-Assistent" FontFamily="{StaticResource DisplayFontFamily}" FontSize="{StaticResource FontSizeDisplay}" FontWeight="SemiBold" LineHeight="{StaticResource LineDisplay}"/>
-          <TextBlock x:Name="AppSubtitle" Text="Schritt für Schritt durch die Updates – starten Sie links mit Schritt 1." Margin="0,4,0,0" FontSize="{StaticResource FontSizeBody}" Foreground="{StaticResource MutedTextBrush}"/>
+          <TextBlock x:Name="AppTitle"
+                     Text="Update-Assistent"
+                     FontFamily="{StaticResource DisplayFontFamily}"
+                     FontSize="{StaticResource FontSizeDisplay}"
+                     FontWeight="SemiBold"
+                     LineHeight="{StaticResource LineDisplay}"/>
+          <TextBlock x:Name="AppSubtitle"
+                     Text="Schritt für Schritt durch die Updates – starten Sie links mit Schritt 1."
+                     Margin="0,4,0,0"
+                     FontSize="{StaticResource FontSizeBody}"
+                     Foreground="{StaticResource MutedTextBrush}"/>
         </StackPanel>
+
         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
           <StackPanel Margin="0,0,12,0" VerticalAlignment="Center">
-            <TextBlock x:Name="LanguageLabel" Text="Sprache" FontSize="{StaticResource FontSizeCaption}" FontWeight="Bold" Foreground="{StaticResource BrandBrush}" HorizontalAlignment="Right"/>
-            <ComboBox x:Name="LanguageSwitch" Margin="0,4,0,0" AutomationProperties.Name="Sprache auswählen" SelectedIndex="0">
+            <TextBlock x:Name="LanguageLabel"
+                       Text="Sprache"
+                       FontSize="{StaticResource FontSizeCaption}"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource BrandBrush}"
+                       HorizontalAlignment="Right"/>
+            <ComboBox x:Name="LanguageSwitch"
+                      Margin="0,4,0,0"
+                      AutomationProperties.Name="Sprache auswählen"
+                      SelectedIndex="0">
               <ComboBoxItem Tag="de" Content="Deutsch"/>
               <ComboBoxItem Tag="en" Content="English"/>
             </ComboBox>
           </StackPanel>
           <Border Style="{StaticResource Chip}" VerticalAlignment="Center">
-            <TextBlock x:Name="SystemChip" Text="WINDOWS 11 PRO" Foreground="{StaticResource WarningBrush}" FontSize="{StaticResource FontSizeCaption}" FontWeight="Bold" LineHeight="{StaticResource LineCaption}"/>
+            <TextBlock x:Name="SystemChip"
+                       Text="WINDOWS 11 PRO"
+                       Foreground="{StaticResource WarningBrush}"
+                       FontSize="{StaticResource FontSizeCaption}"
+                       FontWeight="Bold"
+                       LineHeight="{StaticResource LineCaption}"/>
           </Border>
         </StackPanel>
       </Grid>
     </Border>
 
+    <!-- Body: fixed navigation column, spacer, and responsive detail pane. -->
     <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
+        <!-- Use a literal GridLength here; a sys:Double StaticResource breaks XamlReader.Load. -->
         <ColumnDefinition Width="284"/>
         <ColumnDefinition Width="16"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
+      <!-- Left rail: progress summary and the generated step navigation list. -->
       <Border Grid.Column="0" Style="{StaticResource Card}" Padding="16">
         <Grid>
           <Grid.RowDefinitions>
@@ -59,64 +95,150 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <StackPanel Margin="0,0,0,16">
-            <TextBlock x:Name="ProgressLabel" Text="Fortschritt" FontSize="{StaticResource FontSizeCaption}" FontWeight="Bold" Foreground="{StaticResource BrandBrush}" LineHeight="{StaticResource LineCaption}"/>
-            <TextBlock x:Name="ProgressText" Margin="0,5,0,0" FontSize="{StaticResource FontSizeSmall}" Foreground="{StaticResource MutedTextBrush}" LineHeight="{StaticResource LineSmall}"/>
-            <ProgressBar x:Name="OverallProgress" Minimum="0" Maximum="8" Value="0" Margin="0,12,0,0" AutomationProperties.Name="Gesamtfortschritt"/>
+            <TextBlock x:Name="ProgressLabel"
+                       Text="Fortschritt"
+                       FontSize="{StaticResource FontSizeCaption}"
+                       FontWeight="Bold"
+                       Foreground="{StaticResource BrandBrush}"
+                       LineHeight="{StaticResource LineCaption}"/>
+            <TextBlock x:Name="ProgressText"
+                       Margin="0,5,0,0"
+                       FontSize="{StaticResource FontSizeSmall}"
+                       Foreground="{StaticResource MutedTextBrush}"
+                       LineHeight="{StaticResource LineSmall}"/>
+            <ProgressBar x:Name="OverallProgress"
+                         Minimum="0"
+                         Maximum="8"
+                         Value="0"
+                         Margin="0,12,0,0"
+                         AutomationProperties.Name="Gesamtfortschritt"/>
           </StackPanel>
           <ListBox Grid.Row="1" x:Name="Navigation" AutomationProperties.Name="Bereiche und Bearbeitungsstatus"/>
         </Grid>
       </Border>
 
+      <!-- Right pane: current step instructions, action buttons, status, and technical details. -->
       <Border Grid.Column="2" Style="{StaticResource Card}" Padding="0">
         <Grid>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Border Background="{StaticResource SurfaceSoftBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,0,0,1" CornerRadius="12,12,0,0" Padding="24,20">
+
+          <!-- Step heading stays outside the scroll area so users keep their place. -->
+          <Border Background="{StaticResource SurfaceSoftBrush}"
+                  BorderBrush="{StaticResource BorderBrushSoft}"
+                  BorderThickness="0,0,0,1"
+                  CornerRadius="12,12,0,0"
+                  Padding="24,20">
             <StackPanel>
-              <TextBlock x:Name="SectionCounter" Foreground="{StaticResource BrandBrush}" FontWeight="Bold" FontSize="{StaticResource FontSizeCaption}" LineHeight="{StaticResource LineCaption}"/>
-              <TextBlock x:Name="StepTitle" Margin="0,6,0,0" FontFamily="{StaticResource DisplayFontFamily}" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold" LineHeight="{StaticResource LineTitle}"/>
+              <TextBlock x:Name="SectionCounter"
+                         Foreground="{StaticResource BrandBrush}"
+                         FontWeight="Bold"
+                         FontSize="{StaticResource FontSizeCaption}"
+                         LineHeight="{StaticResource LineCaption}"/>
+              <TextBlock x:Name="StepTitle"
+                         Margin="0,6,0,0"
+                         FontFamily="{StaticResource DisplayFontFamily}"
+                         FontSize="{StaticResource FontSizeTitle}"
+                         FontWeight="SemiBold"
+                         LineHeight="{StaticResource LineTitle}"/>
               <Border Style="{StaticResource Chip}" HorizontalAlignment="Left" Margin="0,10,0,0">
-                <TextBlock x:Name="StepMode" FontSize="{StaticResource FontSizeSmall}" FontWeight="SemiBold" Foreground="{StaticResource BrandBrush}" LineHeight="{StaticResource LineSmall}"/>
+                <TextBlock x:Name="StepMode"
+                           FontSize="{StaticResource FontSizeSmall}"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource BrandBrush}"
+                           LineHeight="{StaticResource LineSmall}"/>
               </Border>
             </StackPanel>
           </Border>
 
+          <!-- Scroll area: long instructions and logs can grow without resizing the window. -->
           <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="24,22,24,24">
-              <TextBlock x:Name="StepText" FontSize="{StaticResource FontSizeBodyLarge}" LineHeight="{StaticResource LineBodyLarge}" Margin="0,0,0,22"/>
+              <TextBlock x:Name="StepText"
+                         FontSize="{StaticResource FontSizeBodyLarge}"
+                         LineHeight="{StaticResource LineBodyLarge}"
+                         Margin="0,0,0,22"/>
+
+              <!-- PowerShell fills this panel with the valid action buttons for the active step. -->
               <WrapPanel x:Name="Actions" Margin="0,0,0,8"/>
 
-              <Border Background="{StaticResource SurfaceSoftBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" CornerRadius="{StaticResource RadiusMedium}" Padding="16" Margin="0,8,0,16">
+              <!-- Status card: current result, next hint, busy indicator, and restart control. -->
+              <Border Background="{StaticResource SurfaceSoftBrush}"
+                      BorderBrush="{StaticResource BorderBrushSoft}"
+                      BorderThickness="1"
+                      CornerRadius="{StaticResource RadiusMedium}"
+                      Padding="16"
+                      Margin="0,8,0,16">
                 <StackPanel>
-                  <TextBlock x:Name="CurrentStatusLabel" Text="Aktueller Stand" FontSize="{StaticResource FontSizeCaption}" FontWeight="Bold" Foreground="{StaticResource BrandBrush}" LineHeight="{StaticResource LineCaption}"/>
+                  <TextBlock x:Name="CurrentStatusLabel"
+                             Text="Aktueller Stand"
+                             FontSize="{StaticResource FontSizeCaption}"
+                             FontWeight="Bold"
+                             Foreground="{StaticResource BrandBrush}"
+                             LineHeight="{StaticResource LineCaption}"/>
                   <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                    <TextBlock x:Name="StatusIcon" Text="&#xE10F;" FontFamily="{StaticResource IconFontFamily}" FontSize="18" Width="28" VerticalAlignment="Top" Foreground="{StaticResource BrandBrush}"/>
-                    <TextBlock x:Name="Status" FontWeight="SemiBold" LineHeight="{StaticResource LineBody}" AutomationProperties.LiveSetting="Polite"/>
+                    <TextBlock x:Name="StatusIcon"
+                               Text="&#xE10F;"
+                               FontFamily="{StaticResource IconFontFamily}"
+                               FontSize="18"
+                               Width="28"
+                               VerticalAlignment="Top"
+                               Foreground="{StaticResource BrandBrush}"/>
+                    <TextBlock x:Name="Status"
+                               FontWeight="SemiBold"
+                               LineHeight="{StaticResource LineBody}"
+                               AutomationProperties.LiveSetting="Polite"/>
                   </StackPanel>
                   <TextBlock x:Name="NextActionLabel" Text="Was mache ich als Nächstes?" Margin="0,14,0,0" FontWeight="SemiBold"/>
                   <TextBlock x:Name="NextHint" Margin="0,4,0,0" AutomationProperties.LiveSetting="Polite"/>
-                  <ProgressBar x:Name="BusyBar" IsIndeterminate="True" Visibility="Collapsed" Margin="0,12,0,0" AutomationProperties.Name="Vorgang läuft"/>
-                  <Button x:Name="CancelRestart" Content="Neustart verschieben" Style="{StaticResource WarningButton}" HorizontalAlignment="Left" Visibility="Collapsed" Margin="0,14,0,0" AutomationProperties.Name="Neustart verschieben"/>
+                  <ProgressBar x:Name="BusyBar"
+                               IsIndeterminate="True"
+                               Visibility="Collapsed"
+                               Margin="0,12,0,0"
+                               AutomationProperties.Name="Vorgang läuft"/>
+                  <Button x:Name="CancelRestart"
+                          Content="Neustart verschieben"
+                          Style="{StaticResource WarningButton}"
+                          HorizontalAlignment="Left"
+                          Visibility="Collapsed"
+                          Margin="0,14,0,0"
+                          AutomationProperties.Name="Neustart verschieben"/>
                 </StackPanel>
               </Border>
 
+              <!-- Manual steps require the user to tick this after finishing work in another app. -->
               <CheckBox x:Name="Confirm" AutomationProperties.Name="Prüfung manuell bestätigen">
-                <TextBlock x:Name="ConfirmText" Text="Ich habe die Prüfung im anderen Fenster abgeschlossen (auch wenn keine Updates angeboten wurden)." Margin="6,0,0,0" LineHeight="20"/>
+                <TextBlock x:Name="ConfirmText"
+                           Text="Ich habe die Prüfung im anderen Fenster abgeschlossen (auch wenn keine Updates angeboten wurden)."
+                           Margin="6,0,0,0"
+                           LineHeight="20"/>
               </CheckBox>
 
+              <!-- Technical output is available for IT support without distracting normal users. -->
               <Expander x:Name="Details" Header="Details zum Vorgang" Margin="0,0,0,16">
-                <TextBox x:Name="DetailText" IsReadOnly="True" TextWrapping="Wrap" Height="170" VerticalScrollBarVisibility="Auto" Margin="0,10,0,0" AutomationProperties.Name="Technische Meldungen"/>
+                <TextBox x:Name="DetailText"
+                         IsReadOnly="True"
+                         TextWrapping="Wrap"
+                         Height="170"
+                         VerticalScrollBarVisibility="Auto"
+                         Margin="0,10,0,0"
+                         AutomationProperties.Name="Technische Meldungen"/>
               </Expander>
 
-              <TextBlock x:Name="HelpText" Text="Anderes Fenster geöffnet? Kehren Sie über die Windows-Taskleiste zum Assistenten zurück. «Hilfe zur Bedienung» erklärt auch Fensterwechsel und Windows-Rückfragen." FontSize="{StaticResource FontSizeSmall}" Foreground="{StaticResource MutedTextBrush}" LineHeight="{StaticResource LineSmall}"/>
+              <TextBlock x:Name="HelpText"
+                         Text="Anderes Fenster geöffnet? Kehren Sie über die Windows-Taskleiste zum Assistenten zurück. «Hilfe zur Bedienung» erklärt auch Fensterwechsel und Windows-Rückfragen."
+                         FontSize="{StaticResource FontSizeSmall}"
+                         Foreground="{StaticResource MutedTextBrush}"
+                         LineHeight="{StaticResource LineSmall}"/>
             </StackPanel>
           </ScrollViewer>
         </Grid>
       </Border>
     </Grid>
 
+    <!-- Footer: navigation/help/report commands plus static version text. -->
     <Border Grid.Row="2" Style="{StaticResource Card}" Padding="14" Margin="0,16,0,0">
       <Grid>
         <Grid.RowDefinitions>
@@ -130,7 +252,13 @@
           <Button x:Name="Help" Content="Hilfe zur Bedienung" Style="{StaticResource SecondaryButton}" AutomationProperties.Name="Hilfe zur Bedienung"/>
           <Button x:Name="Report" Content="Protokoll für IT" Style="{StaticResource SecondaryButton}" AutomationProperties.Name="Protokoll für IT öffnen"/>
         </WrapPanel>
-        <TextBlock x:Name="FooterText" Grid.Row="1" Text="Ardawan Khosronezhad · IT Germany   |   Version 1.2 · Pilotfassung" FontSize="11" Foreground="{StaticResource MutedTextBrush}" LineHeight="16" Margin="2,2,0,0"/>
+        <TextBlock x:Name="FooterText"
+                   Grid.Row="1"
+                   Text="Ardawan Khosronezhad · IT Germany   |   Version 1.2 · Pilotfassung"
+                   FontSize="11"
+                   Foreground="{StaticResource MutedTextBrush}"
+                   LineHeight="16"
+                   Margin="2,2,0,0"/>
       </Grid>
     </Border>
   </Grid>

@@ -1,7 +1,13 @@
-﻿Import-Module (Join-Path $PSScriptRoot 'LenovoTools.psm1') -Force -ErrorAction Stop
+﻿# Worker entry point for non-GUI update tasks.
+# Update-Assistent.ps1 launches this module in a hidden child PowerShell process so
+# long-running work cannot freeze the WPF window.
+Import-Module (Join-Path $PSScriptRoot 'LenovoTools.psm1') -Force -ErrorAction Stop
 Import-Module (Join-Path $PSScriptRoot 'WindowsUpdate.psm1') -Force -ErrorAction Stop
+
 function Invoke-Worker {
     param([string]$Mode,[string]$RunDirectory)
+
+    # Each worker writes a plain text log for humans and result.json for the GUI.
     if ([string]::IsNullOrWhiteSpace($RunDirectory) -or -not (Test-Path -LiteralPath $RunDirectory -PathType Container)) {
         throw 'Der Protokollordner fehlt.'
     }
@@ -10,12 +16,15 @@ function Invoke-Worker {
     $result = [ordered]@{ Task=$Mode; Outcome='Attention'; Message='Bitte Ergebnis prüfen.'; ExitCode=$null; Time=(Get-Date).ToString('o') }
     try {
         "Start: $Mode | $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Set-Content -LiteralPath $log -Encoding UTF8
+
+        # Lenovo tasks install the helper tool only; users still run the device check manually.
         if ($Mode -in @('LenovoVantage','LenovoSystemUpdate')) {
             $kind = if ($Mode -eq 'LenovoVantage') { 'Vantage' } else { 'SystemUpdate' }
             $result = Install-LenovoTool -Kind $kind -Log $log
         } elseif ($Mode -eq 'Windows') {
             $result = Invoke-WindowsCycle -Log $log
         } elseif ($Mode -eq 'Defender') {
+            # Defender status is verified before and after the signature update.
             Import-Module Defender -ErrorAction Stop
             $before = Get-MpComputerStatus -ErrorAction Stop
             if (-not $before.AMServiceEnabled -or -not $before.AntivirusEnabled -or $before.AMRunningMode -ne 'Normal') {
@@ -31,6 +40,7 @@ function Invoke-Worker {
                 $result.Message = 'Die Aktualisierung wurde ausgeführt, aber der Schutzstatus braucht Aufmerksamkeit. Öffnen Sie Windows-Sicherheit.'
             }
         } else {
+            # Scan and Install share winget; Install adds package installation flags.
             $winget = Get-Command winget.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
             if (-not $winget) { throw 'App-Installer (winget) fehlt. Aktualisieren oder installieren Sie App-Installer im Microsoft Store. Nutzen Sie bis dahin die manuellen Update-Funktionen der Programme.' }
             $cliArguments = @('upgrade','--source','winget','--accept-source-agreements','--disable-interactivity')
@@ -62,10 +72,13 @@ function Invoke-Worker {
             }
         }
     } catch {
+        # Convert all task failures into a readable GUI message and keep details in the log.
         $result.Outcome = 'Attention'
         $result.Message = $_.Exception.Message
         $_ | Out-String | Add-Content -LiteralPath $log -Encoding UTF8
     }
+
+    # The GUI polls this file and maps Outcome to localized status text/icons.
     $result | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $resultPath -Encoding UTF8
 }
 

@@ -1,9 +1,14 @@
-﻿# Windows Update Agent; Windows 11 Pro. Keine Drittmodule erforderlich.
+﻿# Windows Update Agent integration for Windows 11 Pro.
+# No third-party modules are required; this file uses Windows services, registry
+# reads, and the built-in Microsoft.Update COM API.
 $ErrorActionPreference = 'Stop'
+
 function Write-WuLog([string]$Log,[string]$Text) {
     ('[' + (Get-Date -Format 'HH:mm:ss') + '] ' + $Text) | Add-Content -LiteralPath $Log -Encoding UTF8
 }
+
 function Assert-UnmanagedDevice {
+    # Safety gate: do not alter update behavior on domain, Entra, MDM, or policy-managed devices.
     $computer = Get-CimInstance Win32_ComputerSystem -ErrorAction Stop
     if ($computer.PartOfDomain) { throw 'Dieses Gerät gehört zu einer Domäne. Bitte den vorgesehenen Firmen-Updateweg verwenden.' }
     $join = & (Join-Path $env:SystemRoot 'System32\dsregcmd.exe') /status 2>&1 | Out-String
@@ -26,7 +31,9 @@ function Assert-UnmanagedDevice {
         }
     }
 }
+
 function Ensure-AutomaticWindowsUpdates([string]$Log) {
+    # Confirm Windows Update can run automatically and gently restore only local opt-out values.
     Assert-UnmanagedDevice
     $settings = 'HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings'
     if (Test-Path $settings) {
@@ -79,7 +86,9 @@ function Ensure-AutomaticWindowsUpdates([string]$Log) {
         if ((Get-Service $name).Status -ne 'Running') { Start-Service $name -ErrorAction Stop }
     }
 }
+
 function Invoke-WindowsCycle([string]$Log) {
+    # Search, download, and install auto-selected software updates. Anything interactive stays manual.
     $r = [ordered]@{Task='Windows';Outcome='Attention';Message='';ExitCode=$null;Time=(Get-Date).ToString('o');RebootRequired=$false}
     Ensure-AutomaticWindowsUpdates $Log
     Add-Type -AssemblyName System.Windows.Forms
@@ -125,6 +134,8 @@ function Invoke-WindowsCycle([string]$Log) {
             if ($installation.RebootRequired -or $system.RebootRequired) { $r.RebootRequired=$true;break }
         } catch { $failed++;Write-WuLog $Log ('Nicht abgeschlossen: '+$u.Title+' | '+$_.Exception.Message) }
     }
+
+    # The GUI message is conservative: failed, skipped, or newly discovered updates require attention.
     Write-WuLog $Log ("Installiert: $installed; fehlgeschlagen: $failed; bewusst übersprungen: $skipped.")
     if ($failed -gt 0) {
         $r.Message="$failed Update(s) konnten nicht abgeschlossen werden. Details und Windows Update prüfen."

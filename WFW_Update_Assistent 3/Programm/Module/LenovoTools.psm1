@@ -1,13 +1,21 @@
-﻿function Test-LenovoTool([string]$Kind) {
+﻿# Lenovo helper detection and installation.
+# The assistant only installs or opens Lenovo's tools; firmware and driver choices
+# remain inside Lenovo Vantage/System Update where the user can review them.
+function Test-LenovoTool([string]$Kind) {
+    # Vantage can appear as a Store package or as a Start-menu app entry.
     if ($Kind -eq 'Vantage') {
         $app = Get-AppxPackage -Name 'E046963F.LenovoCompanion' -ErrorAction Stop
         if ($app) { return $true }
         $start = Get-StartApps | Where-Object { $_.Name -match 'Lenovo.*Vantage|Vantage.*Lenovo|^Vantage$' } | Select-Object -First 1
         return [bool]$start
     }
+
+    # System Update is a classic desktop tool, so check common install paths first.
     foreach ($root in @(${env:ProgramFiles(x86)},$env:ProgramFiles)) {
         if ($root -and (Test-Path -LiteralPath (Join-Path $root 'Lenovo\System Update\tvsu.exe'))) { return $true }
     }
+
+    # Fall back to uninstall registry entries when the executable is not in the expected location.
     foreach ($key in @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall','HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall')) {
         if (Test-Path $key) {
             $entry=Get-ItemProperty ($key+'\*') -ErrorAction Stop | Where-Object { $_.DisplayName -match '^(Lenovo )?System Update$' -and $_.Publisher -match 'Lenovo' } | Select-Object -First 1
@@ -16,7 +24,9 @@
     }
     return $false
 }
+
 function Install-LenovoTool([string]$Kind,[string]$Log) {
+    # Install only on Lenovo hardware and only if the chosen tool is missing.
     $r=[ordered]@{Task=('Lenovo'+$Kind);Outcome='Attention';Message='';ExitCode=$null;Time=(Get-Date).ToString('o')}
     $name=if ($Kind -eq 'Vantage') { 'Lenovo Vantage' } else { 'Lenovo System Update' }
     $manufacturer=(Get-CimInstance Win32_ComputerSystem -ErrorAction Stop).Manufacturer
@@ -31,6 +41,8 @@ function Install-LenovoTool([string]$Kind,[string]$Log) {
     $source=if ($Kind -eq 'Vantage') { 'msstore' } else { 'winget' }
     $arguments=@('install','--id',$id,'--exact','--source',$source,'--silent','--disable-interactivity','--accept-source-agreements','--accept-package-agreements','--no-upgrade')
     "Installation von $name über $source; Paket $id" | Add-Content -LiteralPath $Log -Encoding UTF8
+
+    # Native stderr is logged as text so winget warnings do not stop PowerShell prematurely.
     $ErrorActionPreference='Continue'
     [Console]::OutputEncoding=New-Object System.Text.UTF8Encoding
     & $winget.Source @arguments 2>&1 | ForEach-Object { "$_" } | Add-Content -LiteralPath $Log -Encoding UTF8
