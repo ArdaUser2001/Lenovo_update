@@ -81,5 +81,6 @@
   <sys:Double x:Key="LineDisplay">34</sys:Double>
   <!-- Minimum control size and navigation column width. -->
   <sys:Double x:Key="TargetSize">44</sys:Double>
-  <sys:Double x:Key="NavigationWidth">284</sys:Double>
+  <!-- Resource values must match the target property type; column Width uses GridLength. -->
+  <GridLength x:Key="NavigationWidth">284</GridLength>
 </ResourceDictionary>

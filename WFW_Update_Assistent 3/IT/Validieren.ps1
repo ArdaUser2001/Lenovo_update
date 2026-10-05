@@ -26,4 +26,39 @@ foreach ($name in @('UPDATE-ASSISTENT-STARTEN.cmd','Anleitung.pdf','START-HIER.t
         throw ('Datei fehlt: '+$name)
     }
 }
-Write-Output 'PowerShell-Syntax und Paketstruktur sind in Ordnung. Windows-Funktionstest nach IT-Testplan.md bleibt erforderlich.'
+# Instantiate the actual WPF resources and window without showing it or running updates.
+# XML parsing alone cannot detect resource/property type mismatches such as Double vs GridLength.
+if ([Threading.Thread]::CurrentThread.ApartmentState -ne 'STA') {
+    throw 'Bitte mit Windows PowerShell im STA-Modus ausführen: powershell.exe -NoProfile -STA -File IT\Validieren.ps1'
+}
+Add-Type -AssemblyName @('PresentationFramework','PresentationCore','WindowsBase')
+function Read-ValidationXaml([string]$Path) {
+    $document = [xml](Get-Content -LiteralPath $Path -Raw -Encoding UTF8)
+    $reader = New-Object System.Xml.XmlNodeReader $document
+    try {
+        [Windows.Markup.XamlReader]::Load($reader)
+    } finally {
+        $reader.Close()
+    }
+}
+$application = [Windows.Application]::Current
+if (-not $application) { $application = New-Object Windows.Application }
+$loadedDictionaries = @()
+$window = $null
+try {
+    foreach ($name in @('Theme.xaml','Styles.xaml')) {
+        $dictionary = Read-ValidationXaml (Join-Path $program ('Oberflaeche\' + $name))
+        $application.Resources.MergedDictionaries.Add($dictionary)
+        $loadedDictionaries += $dictionary
+    }
+    $window = Read-ValidationXaml (Join-Path $program 'Oberflaeche.xaml')
+    if ($window.FindResource('NavigationWidth') -isnot [Windows.GridLength]) {
+        throw 'NavigationWidth muss vom Typ System.Windows.GridLength sein.'
+    }
+} finally {
+    if ($window) { $window.Close() }
+    foreach ($dictionary in $loadedDictionaries) {
+        $application.Resources.MergedDictionaries.Remove($dictionary) | Out-Null
+    }
+}
+Write-Output 'PowerShell-Syntax, Paketstruktur und WPF-Laden sind in Ordnung. Windows-Funktionstest nach IT-Testplan.md bleibt erforderlich.'
