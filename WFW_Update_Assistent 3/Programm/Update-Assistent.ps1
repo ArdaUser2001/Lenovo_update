@@ -57,7 +57,7 @@ try {
     $script:Window.Height = [Math]::Min(820, $area.Height - 24)
     $script:Ui = @{
     }
-    foreach ($name in @('Logo','Navigation','ProgressText','StepTitle','StepMode','StepText','Actions','Status','Confirm','Details','DetailText','BusyBar','Back','Next','Report','Guide','CancelRestart','OverallProgress','SectionCounter','NextHint','Help','AppTitle','AppSubtitle','LanguageLabel','LanguageSwitch','ProgressLabel','CurrentStatusLabel','NextActionLabel','StatusIcon','ConfirmText','HelpText','FooterText','StepIntro','Instructions','Alternatives','AdditionalActions','Support')) {
+    foreach ($name in @('Logo','Navigation','ProgressText','StepTitle','StepText','Actions','Status','Confirm','Details','DetailText','BusyBar','Back','Next','Report','Guide','CancelRestart','OverallProgress','SectionCounter','NextHint','Help','LanguageLabel','LanguageSwitch','ProgressLabel','CurrentStatusLabel','StatusIcon','ConfirmText','HelpText','FooterText','StepIntro','Instructions','Alternatives','AdditionalActions','Support','StepOverview','ContentScroll')) {
         $script:Ui[$name] = $script:Window.FindName($name)
     }
     $logoPath = Join-Path $script:BaseDirectory 'Assets/Logo.png'
@@ -319,7 +319,7 @@ $script:UiText = @{
         AppSubtitle = 'Schritt für Schritt durch die Updates – starten Sie links mit Schritt 1.';
         LanguageLabel = 'Sprache';
         LanguageAutomation = 'Sprache auswählen';
-        ProgressLabel = 'Fortschritt';
+        ProgressLabel = 'Schritte anzeigen ▴';
         OverallProgressAutomation = 'Gesamtfortschritt';
         NavigationAutomation = 'Bereiche und Bearbeitungsstatus';
         CurrentStatusLabel = 'Aktueller Stand';
@@ -375,7 +375,7 @@ $script:UiText = @{
         GuideOpenFailed = 'Die PDF konnte nicht geöffnet werden. Öffnen Sie Anleitung.pdf im entpackten Ordner.';
         GuideMissing = 'Öffnen Sie die separat mitgelieferte PDF-Anleitung.';
         GuideTitle = 'Anleitung';
-        HelpDialog = "So verwenden Sie den Assistenten:`n`n• Beginnen Sie oben mit der farbigen Schaltfläche. Lesen Sie danach den aktuellen Stand.`n• Öffnet sich ein anderes Fenster, erledigen Sie dort die beschriebenen Schritte.`n• Zurück zum Assistenten: Klicken Sie auf sein Symbol unten in der Windows-Taskleiste. Oder halten Sie Alt gedrückt und drücken Sie Tab, bis der Assistent ausgewählt ist.`n• Eine graue Schaltfläche ist gerade nicht verfügbar. Warten Sie auf den laufenden Vorgang oder führen Sie zuerst die Suche aus.`n• Fragt Windows, ob Änderungen erlaubt sind? Prüfen Sie, ob die Abfrage zu Ihrer gerade gestarteten Aktion gehört. Wenn Ihnen die nötigen Rechte fehlen oder Sie unsicher sind, wählen Sie Nein und fragen Sie IT Germany.`n• Weitergehen markiert einen Schritt nicht als erledigt. Offene Schritte sehen Sie links.`n`nBei Problemen: Notieren Sie die Meldung. Über «Protokoll für IT» können Sie die Ergebnisdateien öffnen; es wird nichts automatisch versendet.";
+        HelpDialog = "So verwenden Sie den Assistenten:`n`n• Beginnen Sie oben mit der farbigen Schaltfläche. Lesen Sie danach den aktuellen Stand.`n• Öffnet sich ein anderes Fenster, erledigen Sie dort die beschriebenen Schritte.`n• Zurück zum Assistenten: Klicken Sie auf sein Symbol unten in der Windows-Taskleiste. Oder halten Sie Alt gedrückt und drücken Sie Tab, bis der Assistent ausgewählt ist.`n• Eine graue Schaltfläche ist gerade nicht verfügbar. Warten Sie auf den laufenden Vorgang oder führen Sie zuerst die Suche aus.`n• Fragt Windows, ob Änderungen erlaubt sind? Prüfen Sie, ob die Abfrage zu Ihrer gerade gestarteten Aktion gehört. Wenn Ihnen die nötigen Rechte fehlen oder Sie unsicher sind, wählen Sie Nein und fragen Sie IT Germany.`n• Weitergehen markiert einen Schritt nicht als erledigt. Offene Schritte sehen Sie über die Fortschrittsanzeige unten.`n`nBei Problemen: Notieren Sie die Meldung. Über «Protokoll für IT» können Sie die Ergebnisdateien öffnen; es wird nichts automatisch versendet.";
         HelpTitle = 'Hilfe zur Bedienung';
         StateOpen = 'Offen';
         StateRunning = 'Läuft';
@@ -404,7 +404,7 @@ $script:UiText = @{
         AppSubtitle = 'Step by step through the updates - start on the left with step 1.';
         LanguageLabel = 'Language';
         LanguageAutomation = 'Choose language';
-        ProgressLabel = 'Progress';
+        ProgressLabel = 'View steps ▴';
         OverallProgressAutomation = 'Overall progress';
         NavigationAutomation = 'Sections and processing status';
         CurrentStatusLabel = 'Current status';
@@ -460,7 +460,7 @@ $script:UiText = @{
         GuideOpenFailed = 'The PDF could not be opened. Open Anleitung.pdf in the extracted folder.';
         GuideMissing = 'Open the separately supplied PDF guide.';
         GuideTitle = 'Guide';
-        HelpDialog = "How to use the assistant:`n`n• Start with the colored button at the top. Then read the current status.`n• If another window opens, complete the steps described there.`n• Return to the assistant by clicking its icon in the Windows taskbar. Or hold Alt and press Tab until the assistant is selected.`n• A grey button is currently unavailable. Wait for the running operation or run the search first.`n• Does Windows ask whether changes are allowed? Check whether the prompt belongs to the action you just started. If you lack the required rights or are unsure, choose No and ask IT Germany.`n• Continuing does not mark a step as complete. Open steps are shown on the left.`n`nIf there are problems: Note the message. With ""Log for IT"" you can open the result files; nothing is sent automatically.";
+        HelpDialog = "How to use the assistant:`n`n• Start with the colored button at the top. Then read the current status.`n• If another window opens, complete the steps described there.`n• Return to the assistant by clicking its icon in the Windows taskbar. Or hold Alt and press Tab until the assistant is selected.`n• A grey button is currently unavailable. Wait for the running operation or run the search first.`n• Does Windows ask whether changes are allowed? Check whether the prompt belongs to the action you just started. If you lack the required rights or are unsure, choose No and ask IT Germany.`n• Continuing does not mark a step as complete. Open steps are listed when you select the progress area at the bottom.`n`nIf there are problems: Note the message. With ""Log for IT"" you can open the result files; nothing is sent automatically.";
         HelpTitle = 'Usage help';
         StateOpen = 'Open';
         StateRunning = 'Running';
@@ -577,12 +577,9 @@ function Apply-StaticText {
     Set-ControlText 'Alternatives' 'Header' (Get-UiText 'AlternativesHeader')
     Set-ControlText 'Support' 'Header' (Get-UiText 'SupportHeader')
     $script:Window.Title = Get-UiText 'WindowTitle'
-    Set-ControlText 'AppTitle' 'Text' (Get-UiText 'AppTitle')
-    Set-ControlText 'AppSubtitle' 'Text' (Get-UiText 'AppSubtitle')
     Set-ControlText 'LanguageLabel' 'Text' (Get-UiText 'LanguageLabel')
     Set-ControlText 'ProgressLabel' 'Text' (Get-UiText 'ProgressLabel')
     Set-ControlText 'CurrentStatusLabel' 'Text' (Get-UiText 'CurrentStatusLabel')
-    Set-ControlText 'NextActionLabel' 'Text' (Get-UiText 'NextActionLabel')
     Set-ControlText 'ConfirmText' 'Text' (Get-UiText 'ConfirmText')
     Set-ControlText 'HelpText' 'Text' (Get-UiText 'HelpText')
     Set-ControlText 'Back' 'Content' (Get-UiText 'Back')
@@ -782,6 +779,8 @@ function Refresh-Progress {
     }
     $script:Ui.OverallProgress.Value = $done
     $script:Ui.ProgressText.Text = (Get-UiText 'DoneProgress') -f $done
+    $script:Ui.StepOverview.ToolTip = Get-UiText 'ProgressLabel'
+    [Windows.Automation.AutomationProperties]::SetName($script:Ui.StepOverview, ($script:Ui.SectionCounter.Text + '. ' + $script:Ui.ProgressText.Text + '. ' + (Get-UiText 'ProgressLabel')))
 }
 
 # Build scalable outline-icon content. Bind both parts to the owning button foreground.
@@ -847,11 +846,12 @@ function Show-Step {
         $script:Ui.Instructions.IsExpanded = $false
         $script:Ui.Alternatives.IsExpanded = $false
         $script:Ui.Details.IsExpanded = $false
+        $script:Ui.ContentScroll.ScrollToTop()
+        $script:Ui.StepOverview.IsChecked = $false
         $script:RenderedStep = $script:Index
     }
     $script:Ui.StepIntro.Text = Get-UiText ('StepIntro' + ($script:Index + 1))
     $script:Ui.StepTitle.Text = $step.Title -replace '^\d+ · ', ''
-    $script:Ui.StepMode.Text = $step.Mode
     $script:Ui.StepText.Text = $step.Text
     $script:Ui.Status.Text = $script:Messages[$script:Index]
     Set-StatusVisual $script:States[$script:Index]
@@ -946,7 +946,8 @@ function Open-Target([string]$Target, [string]$Text) {
 # Lock navigation during background work and restore the step view afterward.
 function Set-Busy([bool]$Value) {
     $script:Busy = $Value
-    foreach ($key in @('Navigation','Actions','AdditionalActions','Back','Next','Confirm')) {
+    if ($Value) { $script:Ui.StepOverview.IsChecked = $false }
+    foreach ($key in @('Navigation','Actions','AdditionalActions','Back','Next','Confirm','StepOverview')) {
         $script:Ui[$key].IsEnabled = -not $Value
     }
     $script:Ui.BusyBar.Visibility = if ($Value) {
@@ -1408,6 +1409,16 @@ $script:Ui.Guide.Add_Click({
         [Windows.MessageBox]::Show((Get-UiText 'GuideMissing'), (Get-UiText 'GuideTitle')) | Out-Null
     }
 })
+# Escape dismisses the overview and returns keyboard focus to its trigger.
+$script:Window.Add_PreviewKeyDown({
+    param($sender, $eventArgs)
+    if ($eventArgs.Key -eq 'Escape' -and $script:Ui.StepOverview.IsChecked) {
+        $script:Ui.StepOverview.IsChecked = $false
+        $script:Ui.StepOverview.Focus() | Out-Null
+        $eventArgs.Handled = $true
+    }
+})
+
 $script:Window.Add_Closing({
     param($sender,$eventArgs)
     if ($script:RestartPending) {

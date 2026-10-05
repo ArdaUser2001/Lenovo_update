@@ -16,7 +16,11 @@ Hintergrund darf geöffnet bleiben.
 
 SO FINDEN SIE SICH ZURECHT
 
-Beginnen Sie links bei Schritt 1. Lesen Sie die kurzen Anweisungen und
+Jeder Schritt hat eine eigene Ansicht über die volle Fensterbreite. Unten
+sehen Sie Ihre Position und die Zahl tatsächlich bearbeiteter Schritte.
+Ein Klick auf diese Anzeige öffnet die Übersicht aller acht Schritte.
+
+Beginnen Sie mit Schritt 1. Lesen Sie die kurzen Anweisungen und
 klicken Sie auf die hervorgehobene Schaltfläche. Beim Öffnen des
 Assistenten werden noch keine Updates gestartet.
 
@@ -40,7 +44,7 @@ Internetverbindung herstellen. Die Vorbereitung aus Abschnitt 1 der
 Anleitung gilt weiterhin.
 
 WINDOWS AUTOMATISCH AKTUALISIEREN
-Links „1 · Windows aktualisieren“ wählen und „Windows-Updates starten“
+Den Schritt „Windows aktualisieren“ wählen und „Windows-Updates starten“
 anklicken. Den Hinweis lesen und bestätigen. Windows kann Administrator-
 rechte anfordern. Ohne diese Rechte den manuellen Weg verwenden.
 
@@ -76,7 +80,8 @@ Lenovo-Downloadseite. Ein geöffnetes Downloadfenster zählt nicht als
 abgeschlossene Installation.
 
 WEITERE BEREICHE
-Danach die Bereiche links oder über „Weiter“ bearbeiten. Programmupdates
+Danach über „Weiter“ fortfahren oder unten die Fortschrittsanzeige anklicken
+und einen Schritt aus der Übersicht wählen. Programmupdates
 und Defender werden vom Assistenten ausgeführt. Store, Treiber, Aufräumen
 und Lenovo öffnen das passende Fenster; dort führen Sie die Schritte aus
 und bestätigen anschließend Ihre Prüfung. BIOS- und Funktionsupgrades

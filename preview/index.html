@@ -10,14 +10,10 @@
   <body>
     <div class="preview">macOS UI Preview · Actions are simulated; no updates or restarts are performed.</div>
     <div class="app">
-      <!-- Header: original-size brand, compact title and language choice. -->
+      <!-- Header: original-size brand and language choice. -->
       <header class="card">
         <div class="logo">
           <img src="../WFW_Update_Assistent%203/Programm/Assets/Logo.png" alt="Watson Farley &amp; Williams">
-        </div>
-        <div class="heading">
-          <h1 data-text="AppTitle"></h1>
-          <p data-text="AppSubtitle"></p>
         </div>
         <label>
           <span class="eyebrow" data-text="LanguageLabel"></span>
@@ -27,36 +23,19 @@
           </select>
         </label>
       </header>
-      <!-- Main workspace: step navigation beside the selected step. -->
+      <!-- Main workspace: one full-width task screen. -->
       <main>
-        <aside class="card">
-          <div class="eyebrow" data-text="ProgressLabel"></div>
-          <p id="progressText"></p>
-          <progress id="progress" max="8" value="0" aria-label="Progress"></progress>
-          <nav id="navigation" aria-label="Steps"></nav>
-        </aside>
         <!-- Dynamic content is populated by app.js from generated data.js. -->
         <section class="card content">
           <div class="section-head">
-            <div id="counter" class="eyebrow"></div>
-            <h2 id="title"></h2>
-            <span class="chip" id="mode"></span>
+            <h2 id="title" tabindex="-1"></h2>
           </div>
           <div class="body">
             <p id="intro" class="intro"></p>
-            <details id="instructions" class="instructions">
-              <summary data-text="InstructionsHeader"></summary>
-              <p id="description"></p>
-            </details>
             <div id="actions" class="buttons"></div>
-            <details id="alternatives">
-              <summary data-text="AlternativesHeader"></summary>
-              <div id="additionalActions" class="buttons"></div>
-            </details>
             <div id="statusPanel" class="status">
               <div class="eyebrow" data-text="CurrentStatusLabel"></div>
               <p id="status" role="status"></p>
-              <strong data-text="NextActionLabel"></strong>
               <p id="hint"></p>
               <progress id="busy" hidden aria-label="Running"></progress>
             </div>
@@ -64,6 +43,14 @@
               <input id="confirm" type="checkbox">
               <span data-text="ConfirmText"></span>
             </label>
+            <details id="instructions" class="instructions">
+              <summary data-text="InstructionsHeader"></summary>
+              <p id="description"></p>
+            </details>
+            <details id="alternatives">
+              <summary data-text="AlternativesHeader"></summary>
+              <div id="additionalActions" class="buttons"></div>
+            </details>
             <details id="technical">
               <summary data-text="DetailsHeader"></summary>
               <pre id="log"></pre>
@@ -76,17 +63,28 @@
           <button id="report" data-text="Report"></button>
               </div>
             <p class="help" data-text="HelpText"></p>
+              <small class="version" data-text="Footer"></small>
             </details>
           </div>
         </section>
       </main>
-      <!-- Compact Back/Continue navigation and version information. -->
-      <footer class="card">
-        <div class="buttons navigation-actions">
+      <!-- Position and completion stay visible; the step list opens on demand. -->
+      <footer id="taskFooter" class="card">
+        <div class="navigation-actions">
           <button id="back" data-text="Back"></button>
+          <button id="overviewButton" aria-expanded="false" aria-controls="stepOverview">
+            <span class="progress-caption">
+              <span id="counter" class="eyebrow"></span>
+              <span id="progressText"></span>
+            </span>
+            <progress id="progress" max="8" value="0" aria-label="Progress"></progress>
+            <span class="overview-label" data-text="ProgressLabel"></span>
+          </button>
           <button id="next" class="primary"></button>
         </div>
-        <small data-text="Footer"></small>
+        <div id="stepOverview" class="step-overview" hidden>
+          <nav id="navigation" aria-label="Steps"></nav>
+        </div>
       </footer>
     </div>
     <!-- Reusable native dialog for help and session summaries. -->

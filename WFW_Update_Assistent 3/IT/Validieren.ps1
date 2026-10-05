@@ -78,10 +78,6 @@ try {
         }
     }
     # Exercise badge layout at narrow widths and larger text sizes without showing a GUI.
-    $modeLabel = $window.FindName('StepMode')
-    if ($modeLabel.Style -ne $window.FindResource('ChipText')) {
-        throw 'StepMode muss den lesbaren ChipText-Stil verwenden.'
-    }
     foreach ($width in @(240, 500)) {
         foreach ($fontSize in @(13, 26)) {
             $text = New-Object Windows.Controls.TextBlock
@@ -109,6 +105,21 @@ try {
         $text.Measure((New-Object Windows.Size -ArgumentList 32,32))
         if ($text.DesiredSize.Width -le 0 -or $text.DesiredSize.Height -gt 32) {
             throw 'Schrittnummer passt nicht in das 32-Pixel-Abzeichen.'
+        }
+    }
+    # Exercise the full-width task and bottom navigation at minimum and default sizes.
+    $window.FindName('StepTitle').Text = 'Windows aktualisieren'
+    $window.FindName('StepIntro').Text = 'Speichern Sie Ihre Arbeit und starten Sie die Windows-Updates.'
+    $window.FindName('SectionCounter').Text = 'SCHRITT 1 VON 8'
+    $window.FindName('ProgressText').Text = '0 von 8 Bereichen bearbeitet'
+    $window.FindName('Next').Content = 'Weiter (bleibt offen)'
+    foreach ($size in @(@(652, 432), @(1072, 772))) {
+        $window.Content.Measure((New-Object Windows.Size -ArgumentList $size[0],$size[1]))
+        $window.Content.Arrange((New-Object Windows.Rect -ArgumentList 0,0,$size[0],$size[1]))
+        $scroll = $window.FindName('ContentScroll')
+        $overview = $window.FindName('StepOverview')
+        if ($scroll.ActualWidth -lt ($size[0] - 100) -or $scroll.ActualHeight -le 0 -or $overview.ActualWidth -le 0) {
+            throw 'Aufgabenansicht oder Fortschrittsnavigation hat keinen ausreichenden Layoutplatz.'
         }
     }
     if ($window.FindResource('NavigationWidth') -isnot [Windows.GridLength]) {

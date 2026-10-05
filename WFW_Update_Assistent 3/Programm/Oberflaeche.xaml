@@ -21,7 +21,7 @@
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
-    <!-- Header: company logo, application title and language selection. -->
+    <!-- Header: unchanged logo and language selection. -->
     <Border Grid.Row="0" Style="{StaticResource Card}" Padding="14,6" Margin="0,0,0,12">
       <Grid>
         <Grid.ColumnDefinitions>
@@ -44,21 +44,6 @@
               VerticalAlignment="Center"
               RenderOptions.BitmapScalingMode="HighQuality"/>
         </Border>
-        <StackPanel Grid.Column="1" Margin="18,0,18,0" VerticalAlignment="Center">
-          <TextBlock
-              x:Name="AppTitle"
-              Text="Update-Assistent"
-              FontFamily="{StaticResource DisplayFontFamily}"
-              FontSize="22"
-              FontWeight="SemiBold"
-              LineHeight="28"/>
-          <TextBlock
-              x:Name="AppSubtitle"
-              Text="Schritt für Schritt durch die Updates – starten Sie links mit Schritt 1."
-              Margin="0,2,0,0"
-              FontSize="12"
-              Foreground="{StaticResource MutedTextBrush}"/>
-        </StackPanel>
         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
           <StackPanel Margin="0" VerticalAlignment="Center" Orientation="Horizontal">
             <TextBlock
@@ -87,237 +72,240 @@
       </Grid>
     </Border>
     <!-- Workspace: fixed-width step navigation and scrollable active-step content. -->
-    <Grid Grid.Row="1">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource NavigationWidth}"/>
-        <ColumnDefinition Width="16"/>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Border Grid.Column="0" Style="{StaticResource Card}" Padding="16">
-        <Grid>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <StackPanel Margin="0,0,0,16">
+    <Border Style="{StaticResource Card}" Padding="0" Grid.Row="1">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Border
+            Background="{StaticResource SurfaceSoftBrush}"
+            BorderBrush="{StaticResource BorderBrushSoft}"
+            BorderThickness="0,0,0,1"
+            CornerRadius="12,12,0,0"
+            Padding="24,14">
+          <StackPanel>
             <TextBlock
-                x:Name="ProgressLabel"
-                Text="Fortschritt"
-                FontSize="{StaticResource FontSizeCaption}"
-                FontWeight="Bold"
-                Foreground="{StaticResource BrandBrush}"
-                LineHeight="{StaticResource LineCaption}"/>
-            <TextBlock
-                x:Name="ProgressText"
-                Margin="0,5,0,0"
-                FontSize="{StaticResource FontSizeSmall}"
-                Foreground="{StaticResource MutedTextBrush}"
-                LineHeight="{StaticResource LineSmall}"/>
-            <ProgressBar
-                x:Name="OverallProgress"
-                Minimum="0"
-                Maximum="8"
-                Value="0"
-                Margin="0,12,0,0"
-                AutomationProperties.Name="Gesamtfortschritt"/>
+                x:Name="StepTitle"
+                Margin="0"
+                FontFamily="{StaticResource DisplayFontFamily}"
+                FontSize="28"
+                FontWeight="SemiBold"
+                LineHeight="{StaticResource LineTitle}"/>
           </StackPanel>
-          <ListBox Grid.Row="1" x:Name="Navigation" AutomationProperties.Name="Bereiche und Bearbeitungsstatus"/>
-        </Grid>
-      </Border>
-      <Border Grid.Column="2" Style="{StaticResource Card}" Padding="0">
-        <Grid>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Border
-              Background="{StaticResource SurfaceSoftBrush}"
-              BorderBrush="{StaticResource BorderBrushSoft}"
-              BorderThickness="0,0,0,1"
-              CornerRadius="12,12,0,0"
-              Padding="24,20">
-            <StackPanel>
+        </Border>
+        <ScrollViewer
+            Grid.Row="1"
+            VerticalScrollBarVisibility="Auto"
+            HorizontalScrollBarVisibility="Disabled"
+            x:Name="ContentScroll">
+          <StackPanel Margin="24,16,24,16">
+            <TextBlock FontSize="17" LineHeight="26" Margin="0,0,0,18" x:Name="StepIntro"/>
+            <!-- Action buttons are populated from the current step definition. -->
+            <WrapPanel x:Name="Actions" Margin="0,0,0,8"/>
+            <Border
+                Background="{StaticResource SurfaceSoftBrush}"
+                BorderBrush="{StaticResource BorderBrushSoft}"
+                BorderThickness="1"
+                CornerRadius="{StaticResource RadiusMedium}"
+                Padding="12"
+                Margin="0,4,0,12">
+              <StackPanel>
+                <TextBlock
+                    x:Name="CurrentStatusLabel"
+                    Text="Aktueller Stand"
+                    FontSize="{StaticResource FontSizeCaption}"
+                    FontWeight="Bold"
+                    Foreground="{StaticResource BrandBrush}"
+                    LineHeight="{StaticResource LineCaption}"/>
+                <Grid Margin="0,8,0,0">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="28"/>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <TextBlock
+                      x:Name="StatusIcon"
+                      Text=""
+                      FontFamily="{StaticResource IconFontFamily}"
+                      FontSize="18"
+                      Width="28"
+                      VerticalAlignment="Top"
+                      Foreground="{StaticResource BrandBrush}"/>
+                  <TextBlock
+                      x:Name="Status"
+                      FontWeight="SemiBold"
+                      LineHeight="{StaticResource LineBody}"
+                      AutomationProperties.LiveSetting="Polite"
+                      Grid.Column="1"/>
+                </Grid>
+                <TextBlock x:Name="NextHint" Margin="0,4,0,0" AutomationProperties.LiveSetting="Polite"/>
+                <ProgressBar
+                    x:Name="BusyBar"
+                    IsIndeterminate="True"
+                    Visibility="Collapsed"
+                    Margin="0,12,0,0"
+                    AutomationProperties.Name="Vorgang läuft"/>
+                <Button
+                    x:Name="CancelRestart"
+                    Content="Neustart verschieben"
+                    Style="{StaticResource WarningButton}"
+                    HorizontalAlignment="Left"
+                    Visibility="Collapsed"
+                    Margin="0,14,0,0"
+                    AutomationProperties.Name="Neustart verschieben"/>
+              </StackPanel>
+            </Border>
+            <!-- Manual completion is explicitly confirmed by the user. -->
+            <CheckBox x:Name="Confirm" AutomationProperties.Name="Prüfung manuell bestätigen" Margin="0,0,0,12">
+              <TextBlock
+                  x:Name="ConfirmText"
+                  Text="Ich habe die Prüfung im anderen Fenster abgeschlossen (auch wenn keine Updates angeboten wurden)."
+                  Margin="6,0,0,0"
+                  LineHeight="20"/>
+            </CheckBox>
+            <!-- Technical log output for the current operation. -->
+            <Expander Header="Schritt-für-Schritt-Anleitung" Margin="0,0,0,10" x:Name="Instructions">
+              <TextBlock
+                  x:Name="StepText"
+                  FontSize="{StaticResource FontSizeBodyLarge}"
+                  LineHeight="{StaticResource LineBodyLarge}"
+                  Margin="0,12,0,4"/>
+            </Expander>
+            <Expander Header="Weitere Möglichkeiten" Margin="0,0,0,10" x:Name="Alternatives">
+              <WrapPanel Margin="0,12,0,0" x:Name="AdditionalActions"/>
+            </Expander>
+            <Expander x:Name="Details" Header="Details zum Vorgang" Margin="0,0,0,10">
+              <TextBox
+                  x:Name="DetailText"
+                  IsReadOnly="True"
+                  TextWrapping="Wrap"
+                  Height="170"
+                  VerticalScrollBarVisibility="Auto"
+                  Margin="0,10,0,0"
+                  AutomationProperties.Name="Technische Meldungen"/>
+            </Expander>
+            <Expander Header="Hilfe &amp; Dokumentation" Margin="0,0,0,10" x:Name="Support">
+              <StackPanel>
+                <WrapPanel Margin="0,10,0,0">
+                  <Button
+                      x:Name="Guide"
+                      Content="Ausführliche Anleitung (PDF)"
+                      Style="{StaticResource SecondaryButton}"
+                      AutomationProperties.Name="Ausführliche Anleitung als PDF öffnen"/>
+                  <Button
+                      x:Name="Help"
+                      Content="Hilfe zur Bedienung"
+                      Style="{StaticResource SecondaryButton}"
+                      AutomationProperties.Name="Hilfe zur Bedienung"/>
+                  <Button
+                      x:Name="Report"
+                      Content="Protokoll für IT"
+                      Style="{StaticResource SecondaryButton}"
+                      AutomationProperties.Name="Protokoll für IT öffnen"/>
+                </WrapPanel>
+                <TextBlock
+                    x:Name="HelpText"
+                    Text="Anderes Fenster geöffnet? Kehren Sie über die Windows-Taskleiste zum Assistenten zurück. «Hilfe zur Bedienung» erklärt auch Fensterwechsel und Windows-Rückfragen."
+                    FontSize="{StaticResource FontSizeSmall}"
+                    Foreground="{StaticResource MutedTextBrush}"
+                    LineHeight="{StaticResource LineSmall}"
+                    Margin="0,10,0,0"/>
+                <TextBlock
+                    x:Name="FooterText"
+                    Text="Ardawan Khosronezhad · IT Germany   |   Version 1.2 · Pilotfassung"
+                    FontSize="10"
+                    Foreground="{StaticResource MutedTextBrush}"
+                    LineHeight="14"
+                    Margin="0,12,0,0"/>
+              </StackPanel>
+            </Expander>
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+    </Border>
+    <!-- Footer: current position, actual completion and an on-demand step overview. -->
+    <Border Grid.Row="2" Style="{StaticResource Card}" Padding="12,8" Margin="0,12,0,0">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Button
+            x:Name="Back"
+            Content="Zurück"
+            Style="{StaticResource SecondaryButton}"
+            AutomationProperties.Name="Zurück"
+            HorizontalAlignment="Left"
+            MinHeight="44"
+            Padding="14,8"
+            Margin="0"/>
+        <Button
+            x:Name="Next"
+            Content="Weiter"
+            Style="{StaticResource PrimaryButton}"
+            AutomationProperties.Name="Weiter"
+            Grid.Column="2"
+            Margin="0"
+            MinHeight="44"
+            Padding="14,8"
+            MaxWidth="250"/>
+        <ToggleButton
+            x:Name="StepOverview"
+            Grid.Column="1"
+            Margin="12,0"
+            Padding="12,4"
+            MinHeight="44"
+            Background="Transparent"
+            BorderThickness="0"
+            Cursor="Hand"
+            HorizontalContentAlignment="Stretch"
+            ToolTip="Schritte anzeigen">
+          <StackPanel>
+            <WrapPanel HorizontalAlignment="Center">
               <TextBlock
                   x:Name="SectionCounter"
                   Foreground="{StaticResource BrandBrush}"
                   FontWeight="Bold"
                   FontSize="{StaticResource FontSizeCaption}"
-                  LineHeight="{StaticResource LineCaption}"/>
+                  LineHeight="{StaticResource LineCaption}"
+                  Margin="0,0,10,0"/>
               <TextBlock
-                  x:Name="StepTitle"
-                  Margin="0,8,0,12"
-                  FontFamily="{StaticResource DisplayFontFamily}"
-                  FontSize="28"
-                  FontWeight="SemiBold"
-                  LineHeight="{StaticResource LineTitle}"/>
-              <Border Style="{StaticResource Chip}" HorizontalAlignment="Left" Margin="0,10,0,0">
-                <TextBlock x:Name="StepMode" Style="{StaticResource ChipText}"/>
-              </Border>
-            </StackPanel>
+                  x:Name="ProgressText"
+                  Margin="0"
+                  FontSize="{StaticResource FontSizeSmall}"
+                  Foreground="{StaticResource MutedTextBrush}"
+                  LineHeight="{StaticResource LineSmall}"/>
+            </WrapPanel>
+            <ProgressBar
+                x:Name="OverallProgress"
+                Minimum="0"
+                Maximum="8"
+                Value="0"
+                Margin="0,5,0,4"
+                AutomationProperties.Name="Gesamtfortschritt"
+                Height="5"/>
+            <TextBlock
+                x:Name="ProgressLabel"
+                Text="Fortschritt"
+                FontSize="11"
+                FontWeight="Bold"
+                Foreground="{StaticResource BrandBrush}"
+                LineHeight="{StaticResource LineCaption}"
+                HorizontalAlignment="Center"/>
+          </StackPanel>
+        </ToggleButton>
+        <Popup
+            Placement="Top"
+            PlacementTarget="{Binding ElementName=StepOverview}"
+            IsOpen="{Binding IsChecked, ElementName=StepOverview, Mode=TwoWay}"
+            StaysOpen="False"
+            AllowsTransparency="True"
+            PopupAnimation="Fade">
+          <Border Style="{StaticResource Card}" Padding="12" Margin="4" Width="420">
+            <ListBox x:Name="Navigation" AutomationProperties.Name="Bereiche und Bearbeitungsstatus" MaxHeight="300"/>
           </Border>
-          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Margin="24,22,24,24">
-              <TextBlock FontSize="17" LineHeight="26" Margin="0,0,0,18" x:Name="StepIntro"/>
-              <Expander Header="Schritt-für-Schritt-Anleitung" Margin="0,0,0,16" x:Name="Instructions">
-                <TextBlock
-                    x:Name="StepText"
-                    FontSize="{StaticResource FontSizeBodyLarge}"
-                    LineHeight="{StaticResource LineBodyLarge}"
-                    Margin="0,12,0,4"/>
-              </Expander>
-              <!-- Action buttons are populated from the current step definition. -->
-              <WrapPanel x:Name="Actions" Margin="0,0,0,8"/>
-              <Expander Header="Weitere Möglichkeiten" Margin="0,0,0,16" x:Name="Alternatives">
-                <WrapPanel Margin="0,12,0,0" x:Name="AdditionalActions"/>
-              </Expander>
-              <Border
-                  Background="{StaticResource SurfaceSoftBrush}"
-                  BorderBrush="{StaticResource BorderBrushSoft}"
-                  BorderThickness="1"
-                  CornerRadius="{StaticResource RadiusMedium}"
-                  Padding="16"
-                  Margin="0,8,0,16">
-                <StackPanel>
-                  <TextBlock
-                      x:Name="CurrentStatusLabel"
-                      Text="Aktueller Stand"
-                      FontSize="{StaticResource FontSizeCaption}"
-                      FontWeight="Bold"
-                      Foreground="{StaticResource BrandBrush}"
-                      LineHeight="{StaticResource LineCaption}"/>
-                  <Grid Margin="0,8,0,0">
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="28"/>
-                      <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock
-                        x:Name="StatusIcon"
-                        Text=""
-                        FontFamily="{StaticResource IconFontFamily}"
-                        FontSize="18"
-                        Width="28"
-                        VerticalAlignment="Top"
-                        Foreground="{StaticResource BrandBrush}"/>
-                    <TextBlock
-                        x:Name="Status"
-                        FontWeight="SemiBold"
-                        LineHeight="{StaticResource LineBody}"
-                        AutomationProperties.LiveSetting="Polite"
-                        Grid.Column="1"/>
-                  </Grid>
-                  <TextBlock
-                      x:Name="NextActionLabel"
-                      Text="Was mache ich als Nächstes?"
-                      Margin="0,14,0,0"
-                      FontWeight="SemiBold"/>
-                  <TextBlock x:Name="NextHint" Margin="0,4,0,0" AutomationProperties.LiveSetting="Polite"/>
-                  <ProgressBar
-                      x:Name="BusyBar"
-                      IsIndeterminate="True"
-                      Visibility="Collapsed"
-                      Margin="0,12,0,0"
-                      AutomationProperties.Name="Vorgang läuft"/>
-                  <Button
-                      x:Name="CancelRestart"
-                      Content="Neustart verschieben"
-                      Style="{StaticResource WarningButton}"
-                      HorizontalAlignment="Left"
-                      Visibility="Collapsed"
-                      Margin="0,14,0,0"
-                      AutomationProperties.Name="Neustart verschieben"/>
-                </StackPanel>
-              </Border>
-              <!-- Manual completion is explicitly confirmed by the user. -->
-              <CheckBox x:Name="Confirm" AutomationProperties.Name="Prüfung manuell bestätigen">
-                <TextBlock
-                    x:Name="ConfirmText"
-                    Text="Ich habe die Prüfung im anderen Fenster abgeschlossen (auch wenn keine Updates angeboten wurden)."
-                    Margin="6,0,0,0"
-                    LineHeight="20"/>
-              </CheckBox>
-              <!-- Technical log output for the current operation. -->
-              <Expander x:Name="Details" Header="Details zum Vorgang" Margin="0,0,0,16">
-                <TextBox
-                    x:Name="DetailText"
-                    IsReadOnly="True"
-                    TextWrapping="Wrap"
-                    Height="170"
-                    VerticalScrollBarVisibility="Auto"
-                    Margin="0,10,0,0"
-                    AutomationProperties.Name="Technische Meldungen"/>
-              </Expander>
-              <Expander Header="Hilfe &amp; Dokumentation" Margin="0,0,0,16" x:Name="Support">
-                <StackPanel>
-                  <WrapPanel Margin="0,10,0,0">
-                    <Button
-                        x:Name="Guide"
-                        Content="Ausführliche Anleitung (PDF)"
-                        Style="{StaticResource SecondaryButton}"
-                        AutomationProperties.Name="Ausführliche Anleitung als PDF öffnen"/>
-                    <Button
-                        x:Name="Help"
-                        Content="Hilfe zur Bedienung"
-                        Style="{StaticResource SecondaryButton}"
-                        AutomationProperties.Name="Hilfe zur Bedienung"/>
-                    <Button
-                        x:Name="Report"
-                        Content="Protokoll für IT"
-                        Style="{StaticResource SecondaryButton}"
-                        AutomationProperties.Name="Protokoll für IT öffnen"/>
-                  </WrapPanel>
-                  <TextBlock
-                      x:Name="HelpText"
-                      Text="Anderes Fenster geöffnet? Kehren Sie über die Windows-Taskleiste zum Assistenten zurück. «Hilfe zur Bedienung» erklärt auch Fensterwechsel und Windows-Rückfragen."
-                      FontSize="{StaticResource FontSizeSmall}"
-                      Foreground="{StaticResource MutedTextBrush}"
-                      LineHeight="{StaticResource LineSmall}"
-                      Margin="0,10,0,0"/>
-                </StackPanel>
-              </Expander>
-            </StackPanel>
-          </ScrollViewer>
-        </Grid>
-      </Border>
-    </Grid>
-    <!-- Footer: step navigation, documentation and local reports. -->
-    <Border Grid.Row="2" Style="{StaticResource Card}" Padding="12,8" Margin="0,12,0,0">
-      <Grid>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-          </Grid.ColumnDefinitions>
-          <Button
-              x:Name="Back"
-              Content="Zurück"
-              Style="{StaticResource SecondaryButton}"
-              AutomationProperties.Name="Zurück"
-              HorizontalAlignment="Left"
-              MinHeight="44"
-              Padding="14,8"
-              Margin="0"/>
-          <Button
-              x:Name="Next"
-              Content="Weiter"
-              Style="{StaticResource PrimaryButton}"
-              AutomationProperties.Name="Weiter"
-              Grid.Column="1"
-              Margin="0"
-              MinHeight="44"
-              Padding="14,8"/>
-        </Grid>
-        <TextBlock
-            x:Name="FooterText"
-            Grid.Row="1"
-            Text="Ardawan Khosronezhad · IT Germany   |   Version 1.2 · Pilotfassung"
-            FontSize="10"
-            Foreground="{StaticResource MutedTextBrush}"
-            LineHeight="14"
-            Margin="2,4,0,0"/>
+        </Popup>
       </Grid>
     </Border>
   </Grid>

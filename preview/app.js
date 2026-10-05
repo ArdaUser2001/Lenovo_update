@@ -53,18 +53,19 @@ function summary() {
 // Rebuild the view from session state; this function never runs update actions.
 function render() {
   document.documentElement.lang = language;
+  document.title = t('WindowTitle');
   document.querySelectorAll('[data-text]').forEach(el => el.textContent = t(el.dataset.text));
 
   // Step heading, instructions and overall completion count.
   const step = DATA.steps[language][index];
   if (renderedStep !== index) {
     ['instructions', 'alternatives', 'technical'].forEach(id => $(id).open = false);
+    setOverview(false);
     renderedStep = index;
     document.querySelector('.body').scrollTop = 0;
   }
   $('intro').textContent = t(`StepIntro${index + 1}`);
   $('title').textContent = step.Title.replace(/^\d+ · /, '');
-  $('mode').textContent = step.Mode;
   $('description').textContent = step.Text;
   $('counter').textContent = t('SectionCounter').replace('{0}', index + 1);
   $('progressText').textContent = t('DoneProgress').replace(
@@ -90,7 +91,9 @@ function render() {
     if (i === index) button.setAttribute('aria-current', 'step');
     button.onclick = () => {
       index = i;
+      setOverview(false);
       render();
+      $('title').focus();
     };
     return button;
   }));
@@ -129,6 +132,9 @@ function render() {
   $('busy').hidden = states[index] !== 'StateRunning';
   $('back').disabled = running || index === 0;
   $('next').disabled = running;
+  $('overviewButton').disabled = running;
+  if (running) setOverview(false);
+  $('overviewButton').setAttribute('aria-label', `${$('counter').textContent}. ${$('progressText').textContent}. ${t('ProgressLabel')}`);
   $('next').className = completed(index) || index === 7 ? 'primary' : '';
   $('next').textContent = t(
     index === 7 ? 'Summary' : completed(index) ? 'NextStep' : 'ContinueOpen'
@@ -164,6 +170,27 @@ function simulate(action) {
     render();
   }, 900);
 }
+
+// The overview is navigation only; opening it never changes completion state.
+function setOverview(open) {
+  $('stepOverview').hidden = !open;
+  $('overviewButton').setAttribute('aria-expanded', String(open));
+}
+$('overviewButton').onclick = () => {
+  if (running) return;
+  const open = $('stepOverview').hidden;
+  setOverview(open);
+  if (open) $('navigation').children[index].focus();
+};
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && !$('stepOverview').hidden) {
+    setOverview(false);
+    $('overviewButton').focus();
+  }
+});
+document.addEventListener('click', event => {
+  if (!$('taskFooter').contains(event.target)) setOverview(false);
+});
 
 // Bind the static controls once; render() handles dynamically created step buttons.
 $('language').onchange = event => {

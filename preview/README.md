@@ -11,3 +11,5 @@ After changing Windows text or theme colors, run `python3 preview/build.py` from
 ## Guided wizard
 
 Each step presents a short introduction and its primary action. Expand **Step-by-step instructions** for the full guidance, **More options** for alternatives, and **Help & documentation** for support links. The scan/install sequence stays visible together. Back and Continue remain in the footer; continuing does not complete an open step.
+
+The current layout uses full-width task screens. Click the bottom progress area to open the step overview; Escape or clicking outside closes it. Position and completed-step count are separate. Switching steps resets the content scroll position and closes task disclosures while preserving results. The original logo remains at the top, and version information is inside Help.

@@ -1,59 +1,40 @@
 # WFW Update-Assistent UI
 
-## File overview
+## Resources and loading
 
-- `Theme.xaml` contains all visual tokens: colors, brushes, fonts, spacing, corner radii, type sizes, and layout constants. Change the brand color by editing the single `BrandColor` line.
-- `Styles.xaml` contains reusable WPF styles for cards, chips, buttons, check boxes, navigation items, expanders, progress bars, text boxes, and the language selector.
-- `../Oberflaeche.xaml` contains layout only. It has no code-behind, no `x:Class`, and no event handlers.
-- `../Update-Assistent.ps1` loads `Icons.xaml`, then `Theme.xaml`, then `Styles.xaml`, then `Oberflaeche.xaml` with `XamlReader`. The dictionaries are added to `Application.Current.Resources` before loading the window because runtime `XamlReader` does not resolve relative pack URIs.
+- `Icons.xaml` contains 24-unit outline geometries shared with the browser preview.
+- `Theme.xaml` contains colors, fonts, spacing and dimensions. Change `BrandColor` to change the brand color.
+- `Styles.xaml` contains reusable WPF control styles.
+- `../Oberflaeche.xaml` contains the window layout and named controls, without code-behind.
+- `../Update-Assistent.ps1` loads icons, theme, styles and then the window. Resources are merged into the application before loading the layout because runtime `XamlReader` does not resolve relative pack URIs.
 
-## Change colors, fonts, or spacing
+## Full-width task screens
 
-- Colors: edit `Theme.xaml`. Keep hard-coded color values there only.
-- Brand color: edit `BrandColor` in `Theme.xaml`.
-- Fonts: edit `AppFontFamily`, `DisplayFontFamily`, or `IconFontFamily` in `Theme.xaml`.
-- Spacing, corner radius, or type scale: edit the named resources in `Theme.xaml`.
+The header keeps the original logo at 216 × 78 and the language selector. The application name remains in the native window title.
 
-## Add a step
+Each task uses the full workspace width. `StepIntro` supplies concise guidance, followed by the main actions, one status panel and manual confirmation when applicable. `Instructions` reveals the complete `StepText`; `Alternatives` holds secondary actions. Technical details and support are collapsed by default. Author/version information lives inside `Support`.
 
-1. Add the German and English step objects in the `$script:StepsByLanguage` data structure in `Update-Assistent.ps1`.
-2. Keep the same action `Id` values if the existing logic should run.
-3. Add any new action `Id` to `Invoke-StepAction`.
-4. Update progress maximums and copy that currently mention 8 steps.
-5. No XAML layout change is required.
+The footer contains Back, `StepOverview` and Next. Its progress area distinguishes the selected step (`SectionCounter`) from actual completion (`ProgressText` and `OverallProgress`). A popup contains the existing `Navigation` list and its per-step status labels. Opening the list or moving to another step does not mark any step complete.
 
-## Add a button style
+On step changes, `ContentScroll` returns to the top and instructions, alternatives, technical details and the overview close. Results remain in the session arrays. Language changes and status refreshes preserve expanded instruction state. Background work closes and disables the step overview together with other navigation. Escape dismisses the overview.
 
-1. Add the visual tokens you need to `Theme.xaml`.
-2. Add a named style to `Styles.xaml`, based on `ButtonBase` when possible.
-3. Apply it from PowerShell with `$script:Window.FindResource('NewStyleName')`.
+## Editing steps and actions
 
-## XAML names
+1. Update German and English entries in `$script:StepsByLanguage` and the `StepIntro1` through `StepIntro8` UI labels.
+2. Keep step order and action IDs identical across languages. Existing IDs route through `Invoke-StepAction`.
+3. Keep essential restart and firmware precautions visible in the short introductions.
+4. If changing the number of steps, update completion counters and progress maximums as well.
 
-The script depends on these existing names: `Logo`, `Navigation`, `ProgressText`, `OverallProgress`, `SectionCounter`, `StepTitle`, `StepMode`, `StepText`, `Actions`, `Status`, `BusyBar`, `CancelRestart`, `Confirm`, `Details`, `DetailText`, `Back`, `Next`, `Report`, and `Guide`.
+`Actions` holds the primary action; the program scan/install pair stays visible together. Other actions go into `AdditionalActions`. Both containers are disabled while workers run.
 
-The redesign adds these names: `AppTitle`, `AppSubtitle`, `LanguageLabel`, `LanguageSwitch`, `ProgressLabel`, `CurrentStatusLabel`, `NextActionLabel`, `StatusIcon`, `ConfirmText`, `HelpText`, and `FooterText`.
+## Icons, logo and typography
 
-## Guided wizard layout
+`Get-ActionIconKey` selects action icons; `New-IconButtonContent` binds both icon and label colors to the owning button. Keep the preview's `actionIcons` map aligned when adding actions. The official WFW wordmark is preserved, with high-quality bitmap scaling in a borderless white area.
 
-The active step starts with `StepIntro`, a concise instruction from `StepIntro1` through `StepIntro8` in the language dictionaries. `Instructions` reveals the original full `StepText`. Keep restart and firmware precautions in the introduction as well as the detailed copy.
+Step circles use the explicit `StepNumberText` style with Segoe UI. Symbol fonts must not be used for digits. The reusable `ChipText` style uses natural line measurement. `RadiusPill` is a WPF radius of 16 device-independent pixels, not CSS's 999px convention. Grid column width resources must be `GridLength`, not `Double`.
 
-`Actions` holds the primary action. `AdditionalActions`, inside `Alternatives`, holds secondary actions; the program scan/install pair stays visible together. Both action containers are disabled during worker activity. Step changes collapse instructions, alternatives and logs; status refreshes and language changes preserve their expansion state.
+## Validation and preview
 
-The footer contains only Back and Next. `Support` groups the PDF guide, usage help, IT report and window-switching guidance. Continuing leaves an unconfirmed step open; the existing completion and update logic remains unchanged.
+The Windows validation script parses the launcher and PowerShell files, loads the WPF resources/window without starting updates, and checks geometry types, badge sizing and the full-width layout at minimum/default sizes. Native interaction and visual checks still belong in the Windows test plan.
 
-The macOS preview mirrors this layout. Run `python3 preview/build.py` from the repository root after editing the wizard introductions or shared copy.
-
-## Icons and wordmark
-
-`Icons.xaml` contains 24-unit outline geometries shared by WPF and the browser preview. `Get-ActionIconKey` maps stable action IDs to icons; `New-IconButtonContent` binds icon and label colors to the button foreground. Update the corresponding `actionIcons` map in the preview when adding action IDs. The original WFW logo is preserved and displayed in a larger, white, borderless area with high-quality bitmap scaling.
-
-The Windows validation script parses the launcher preflight and loads all three resource dictionaries, checking icon and navigation-width types without running updates.
-
-## Windows badge rendering
-
-Step circles always show their number in the explicit `StepNumberText` style (Segoe UI); status remains in the adjacent caption. Do not use the symbol font for digits. Mode/platform labels use `ChipText`, with natural line measurement and wrapping. `RadiusPill` is a WPF radius of 16 device-independent pixels, not the CSS convention of 999px.
-
-## Compact window bars
-
-The header keeps the logo at 216 × 78 while reducing vertical padding to 6. The title is 22 px, and the language label sits beside the 32 px selector. The Windows edition badge is removed. Footer padding is 8 px vertically; Back/Next keep 44 px targets and the credits use a compact second line. Main action buttons retain their existing sizes.
+Run `python3 preview/build.py` from the repository root after changing text, colors or icon geometry. Update preview HTML/CSS separately when changing layout.
