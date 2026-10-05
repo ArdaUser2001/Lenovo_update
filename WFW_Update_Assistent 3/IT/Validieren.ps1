@@ -77,6 +77,40 @@ try {
             throw ('Ungueltige Icon-Geometrie: ' + $iconKey)
         }
     }
+    # Exercise badge layout at narrow widths and larger text sizes without showing a GUI.
+    $modeLabel = $window.FindName('StepMode')
+    if ($modeLabel.Style -ne $window.FindResource('ChipText')) {
+        throw 'StepMode muss den lesbaren ChipText-Stil verwenden.'
+    }
+    foreach ($width in @(240, 500)) {
+        foreach ($fontSize in @(13, 26)) {
+            $text = New-Object Windows.Controls.TextBlock
+            $text.Style = $window.FindResource('ChipText')
+            $text.Text = 'Der Assistent sucht und installiert fuer Sie / The assistant searches and installs for you'
+            $text.FontSize = $fontSize
+            $chip = New-Object Windows.Controls.Border
+            $chip.Style = $window.FindResource('Chip')
+            $chip.Child = $text
+            $chip.Measure((New-Object Windows.Size -ArgumentList $width,([double]::PositiveInfinity)))
+            $chip.Arrange((New-Object Windows.Rect -ArgumentList 0,0,$chip.DesiredSize.Width,$chip.DesiredSize.Height))
+            if ($text.ActualWidth -le 0 -or $text.ActualHeight -lt $fontSize -or $text.ActualHeight -gt $chip.ActualHeight) {
+                throw 'Chip-Text hat keine lesbare Layoutflaeche.'
+            }
+            if ($chip.CornerRadius.TopLeft -gt ($chip.ActualHeight / 2)) {
+                throw 'Chip-Eckenradius ist groesser als die halbe Hoehe.'
+            }
+        }
+    }
+    foreach ($number in 1..8) {
+        $text = New-Object Windows.Controls.TextBlock
+        $text.Style = $window.FindResource('StepNumberText')
+        $text.Text = [string]$number
+        if ($text.FontFamily.Source -ne 'Segoe UI') { throw 'Schrittnummern brauchen eine Textschrift.' }
+        $text.Measure((New-Object Windows.Size -ArgumentList 32,32))
+        if ($text.DesiredSize.Width -le 0 -or $text.DesiredSize.Height -gt 32) {
+            throw 'Schrittnummer passt nicht in das 32-Pixel-Abzeichen.'
+        }
+    }
     if ($window.FindResource('NavigationWidth') -isnot [Windows.GridLength]) {
         throw 'NavigationWidth muss vom Typ System.Windows.GridLength sein.'
     }

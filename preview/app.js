@@ -77,7 +77,7 @@ function render() {
     const button = document.createElement('button');
     const number = document.createElement('span');
     number.className = 'step-number';
-    number.textContent = completed(i) ? '✓' : i + 1;
+    number.textContent = i + 1;
     const title = document.createElement('span');
     title.className = 'step-label';
     title.textContent = s.Title.replace(/^\d+ · /, '');

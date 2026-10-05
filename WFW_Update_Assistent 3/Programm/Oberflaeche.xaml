@@ -80,11 +80,8 @@
           <Border Style="{StaticResource Chip}" VerticalAlignment="Center">
             <TextBlock
                 x:Name="SystemChip"
-                Text="WINDOWS 11 PRO"
-                Foreground="{StaticResource BrandBrush}"
-                FontSize="{StaticResource FontSizeCaption}"
-                FontWeight="Bold"
-                LineHeight="{StaticResource LineCaption}"/>
+                    Style="{StaticResource ChipText}"
+                Text="WINDOWS 11 PRO"/>
           </Border>
         </StackPanel>
       </Grid>
@@ -156,10 +153,7 @@
               <Border Style="{StaticResource Chip}" HorizontalAlignment="Left" Margin="0,10,0,0">
                 <TextBlock
                     x:Name="StepMode"
-                    FontSize="{StaticResource FontSizeSmall}"
-                    FontWeight="SemiBold"
-                    Foreground="{StaticResource BrandBrush}"
-                    LineHeight="{StaticResource LineSmall}"/>
+                    Style="{StaticResource ChipText}"/>
               </Border>
             </StackPanel>
           </Border>

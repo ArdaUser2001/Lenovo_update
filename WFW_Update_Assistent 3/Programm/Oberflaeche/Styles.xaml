@@ -29,6 +29,26 @@
     <Setter Property="BorderThickness" Value="1"/>
     <Setter Property="CornerRadius" Value="{StaticResource RadiusPill}"/>
     <Setter Property="Padding" Value="12,6"/>
+    <Setter Property="MinHeight" Value="34"/>
+  </Style>
+  <!-- Dedicated text styles avoid icon-font fallback and fixed line-height clipping. -->
+  <Style x:Key="ChipText" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="Segoe UI"/>
+    <Setter Property="FontSize" Value="13"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Foreground" Value="{StaticResource BrandBrush}"/>
+    <Setter Property="TextWrapping" Value="Wrap"/>
+    <Setter Property="LineStackingStrategy" Value="MaxHeight"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style x:Key="StepNumberText" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="Segoe UI"/>
+    <Setter Property="FontSize" Value="14"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="Foreground" Value="{StaticResource BrandBrush}"/>
+    <Setter Property="TextAlignment" Value="Center"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="LineStackingStrategy" Value="MaxHeight"/>
   </Style>
   <!-- Shared button chrome with 44 px minimum touch target and visible keyboard focus. -->
   <Style x:Key="ButtonBase" TargetType="Button">

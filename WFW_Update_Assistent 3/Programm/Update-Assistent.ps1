@@ -776,7 +776,8 @@ function Refresh-Progress {
         $_ -eq 'Benutzer bestätigt' -or $_ -eq 'Automatisch bearbeitet'
     }).Count
     for ($i = 0; $i -lt $script:NavStatus.Count; $i++) {
-        $script:NavStatus[$i].Icon.Text = if ($script:States[$i] -eq 'Offen') { [string]($i + 1) } else { [string](Get-StateIcon $script:States[$i]) }
+        # Keep step numbers stable; the adjacent caption describes the processing state.
+        $script:NavStatus[$i].Icon.Text = [string]($i + 1)
         $script:NavStatus[$i].Caption.Text = Get-StateText $script:States[$i]
     }
     $script:Ui.OverallProgress.Value = $done
@@ -1297,8 +1298,8 @@ foreach ($step in $script:Steps) {
     $row.ColumnDefinitions.Add($columnText)
     $icon = New-Object Windows.Controls.TextBlock
     $icon.Text = [string]($script:Ui.Navigation.Items.Count + 1)
-    $icon.FontFamily = New-Object Windows.Media.FontFamily -ArgumentList 'Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI Symbol'
-    $icon.FontSize = 16
+    # Numbers need a text font; icon fonts do not reliably contain digit glyphs.
+    $icon.Style = $script:Window.FindResource('StepNumberText')
     $icon.Width = 24
     $icon.Margin = '0'
     $icon.TextAlignment = 'Center'

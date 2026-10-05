@@ -49,3 +49,7 @@ The macOS preview mirrors this layout. Run `python3 preview/build.py` from the r
 `Icons.xaml` contains 24-unit outline geometries shared by WPF and the browser preview. `Get-ActionIconKey` maps stable action IDs to icons; `New-IconButtonContent` binds icon and label colors to the button foreground. Update the corresponding `actionIcons` map in the preview when adding action IDs. The original WFW logo is preserved and displayed in a larger, white, borderless area with high-quality bitmap scaling.
 
 The Windows validation script parses the launcher preflight and loads all three resource dictionaries, checking icon and navigation-width types without running updates.
+
+## Windows badge rendering
+
+Step circles always show their number in the explicit `StepNumberText` style (Segoe UI); status remains in the adjacent caption. Do not use the symbol font for digits. Mode/platform labels use `ChipText`, with natural line measurement and wrapping. `RadiusPill` is a WPF radius of 16 device-independent pixels, not the CSS convention of 999px.

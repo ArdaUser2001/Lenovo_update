@@ -65,7 +65,8 @@
   <CornerRadius x:Key="RadiusSmall">4</CornerRadius>
   <CornerRadius x:Key="RadiusMedium">10</CornerRadius>
   <CornerRadius x:Key="RadiusLarge">12</CornerRadius>
-  <CornerRadius x:Key="RadiusPill">999</CornerRadius>
+  <!-- WPF radii are device-independent pixels, not CSS pill shorthand. -->
+  <CornerRadius x:Key="RadiusPill">16</CornerRadius>
   <!-- Typography sizes and line heights. -->
   <sys:Double x:Key="FontSizeCaption">12</sys:Double>
   <sys:Double x:Key="FontSizeSmall">13</sys:Double>
