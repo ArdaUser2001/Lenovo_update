@@ -44,3 +44,9 @@ The macOS preview follows its own simulated state flow. It does not invoke these
 - **Validation:** run the IT validation script on Windows, then follow [IT-Testplan.md](WFW_Update_Assistent%203/IT/IT-Testplan.md) for native functionality checks.
 
 Keep comments focused on responsibilities, state transitions and platform constraints. Preserve UTF-8 BOM encoding for PowerShell files containing German text, so Windows PowerShell 5.1 reads them correctly.
+
+## First launch after a download
+
+The Windows launcher checks the effective execution policy before loading the app. For a downloaded copy, it offers a one-time trust confirmation and unblocks only the five known PowerShell files in that package. Reopening that extracted copy does not require another download-unblock step. It does not change persistent execution policies or generate a digital signature.
+
+An enforced `AllSigned` policy still requires an IT-signed package, and `Restricted` still prevents script execution. The launcher reports these cases with the policy list instead of suggesting a policy bypass.

@@ -531,3 +531,78 @@ footer small {
     max-width: 70%;
   }
 }
+
+/* Refined controls: shared outline icons, generous targets and restrained depth. */
+.logo {
+  width: 216px;
+  height: 78px;
+  padding: 8px;
+  border: 0;
+  background: white;
+}
+
+.system {
+  color: var(--BrandColor);
+}
+
+button, .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.button-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+button.primary, .button.primary {
+  box-shadow: 0 3px 8px #115e6720;
+}
+
+button:not(:disabled):active, .button:active {
+  box-shadow: none;
+}
+
+nav button {
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 12px 10px;
+  border-radius: 10px;
+}
+
+.step-number {
+  flex-basis: 32px;
+  height: 32px;
+  background: var(--PrimarySoftColor);
+  border: 0;
+  color: var(--BrandColor);
+}
+
+.support .buttons button, .support .button {
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button, .button {
+    transition: none;
+  }
+}
+
+@media (max-width: 650px) {
+  .logo {
+    width: 190px;
+    height: 68px;
+  }
+}

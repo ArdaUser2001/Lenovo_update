@@ -5,7 +5,7 @@
 - `Theme.xaml` contains all visual tokens: colors, brushes, fonts, spacing, corner radii, type sizes, and layout constants. Change the brand color by editing the single `BrandColor` line.
 - `Styles.xaml` contains reusable WPF styles for cards, chips, buttons, check boxes, navigation items, expanders, progress bars, text boxes, and the language selector.
 - `../Oberflaeche.xaml` contains layout only. It has no code-behind, no `x:Class`, and no event handlers.
-- `../Update-Assistent.ps1` loads `Theme.xaml`, then `Styles.xaml`, then `Oberflaeche.xaml` with `XamlReader`. The dictionaries are added to `Application.Current.Resources` before loading the window because runtime `XamlReader` does not resolve relative pack URIs.
+- `../Update-Assistent.ps1` loads `Icons.xaml`, then `Theme.xaml`, then `Styles.xaml`, then `Oberflaeche.xaml` with `XamlReader`. The dictionaries are added to `Application.Current.Resources` before loading the window because runtime `XamlReader` does not resolve relative pack URIs.
 
 ## Change colors, fonts, or spacing
 
@@ -43,3 +43,9 @@ The active step starts with `StepIntro`, a concise instruction from `StepIntro1`
 The footer contains only Back and Next. `Support` groups the PDF guide, usage help, IT report and window-switching guidance. Continuing leaves an unconfirmed step open; the existing completion and update logic remains unchanged.
 
 The macOS preview mirrors this layout. Run `python3 preview/build.py` from the repository root after editing the wizard introductions or shared copy.
+
+## Icons and wordmark
+
+`Icons.xaml` contains 24-unit outline geometries shared by WPF and the browser preview. `Get-ActionIconKey` maps stable action IDs to icons; `New-IconButtonContent` binds icon and label colors to the button foreground. Update the corresponding `actionIcons` map in the preview when adding action IDs. The original WFW logo is preserved and displayed in a larger, white, borderless area with high-quality bitmap scaling.
+
+The Windows validation script parses the launcher preflight and loads all three resource dictionaries, checking icon and navigation-width types without running updates.

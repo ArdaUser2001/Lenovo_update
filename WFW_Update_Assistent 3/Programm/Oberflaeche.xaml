@@ -30,14 +30,19 @@
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Border
-            Width="140"
-            Height="48"
-            Background="{StaticResource SurfaceSoftBrush}"
+            Width="216"
+            Height="78"
+            Background="{StaticResource SurfaceBrush}"
             BorderBrush="{StaticResource BorderBrushSoft}"
-            BorderThickness="1"
+            BorderThickness="0"
             CornerRadius="{StaticResource RadiusMedium}"
-            Padding="12">
-          <Image x:Name="Logo" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            Padding="8">
+          <Image
+              x:Name="Logo"
+              Stretch="Uniform"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              RenderOptions.BitmapScalingMode="HighQuality"/>
         </Border>
         <StackPanel Grid.Column="1" Margin="18,0,18,0" VerticalAlignment="Center">
           <TextBlock
@@ -76,7 +81,7 @@
             <TextBlock
                 x:Name="SystemChip"
                 Text="WINDOWS 11 PRO"
-                Foreground="{StaticResource WarningBrush}"
+                Foreground="{StaticResource BrandBrush}"
                 FontSize="{StaticResource FontSizeCaption}"
                 FontWeight="Bold"
                 LineHeight="{StaticResource LineCaption}"/>
@@ -143,7 +148,7 @@
                   LineHeight="{StaticResource LineCaption}"/>
               <TextBlock
                   x:Name="StepTitle"
-                  Margin="0,6,0,0"
+                  Margin="0,8,0,12"
                   FontFamily="{StaticResource DisplayFontFamily}"
                   FontSize="28"
                   FontWeight="SemiBold"

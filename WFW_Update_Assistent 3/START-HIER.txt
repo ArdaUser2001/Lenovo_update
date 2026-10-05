@@ -92,12 +92,19 @@ Wenn Updates pausiert sind, in Windows Update „Updates fortsetzen“ wählen.
 Bei verwalteten Geräten oder blockierenden Richtlinien den Firmen-Updateweg
 verwenden. Richtlinien nicht umgehen.
 
-Wenn der Start wegen „nicht digital signiert“ blockiert ist, nur für den
-IT-Pilotversuch mit einem selbst geprüften Originalpaket: Rechtsklick auf
-die ZIP-Datei → Eigenschaften → Zulassen (falls vorhanden) → Übernehmen;
-danach in einen neuen Ordner extrahieren. Für die Verteilung an Benutzer
-sollte IT die PowerShell-Dateien mit einem vertrauenswürdigen Zertifikat
-signieren. SmartScreen nicht pauschal übergehen.
+DOWNLOAD-FREIGABE BEIM ERSTEN START
+Der Starter erkennt die Download-Markierung des entpackten Pakets. Nach
+Ihrer ausdrücklichen Bestätigung entfernt er sie einmalig von genau den
+fünf mitgelieferten PowerShell-Dateien. Prüfen Sie vorher Quelle und Inhalt.
+Für dieselbe entpackte Kopie ist keine erneute Freigabe erforderlich.
+Ein neu heruntergeladenes Paket muss gegebenenfalls erneut bestätigt werden.
+Es werden keine dauerhaften Ausführungsrichtlinien geändert.
+
+Erzwingt die Firma AllSigned oder Restricted, kann der Starter diese Vorgabe
+nicht aufheben. Die Meldung zeigt die aktive Richtlinie. IT muss ein mit
+einem vertrauenswürdigen Code-Signing-Zertifikat signiertes Paket bereitstellen
+oder den vorgesehenen Firmen-Startweg freigeben. Eine Signatur wird durch
+diesen Starter nicht erzeugt. Bei anderen Sperren die Meldung an IT geben.
 
 PILOTFASSUNG
 Vor der breiten Verteilung einmal auf einem Lenovo-Testgerät prüfen.

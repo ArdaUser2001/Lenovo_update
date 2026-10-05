@@ -13,6 +13,29 @@ const logs = Array(8).fill('');
 const t = key => DATA.ui[language][key] || key;
 const completed = i => ['StateAuto', 'StateUserConfirmed'].includes(states[i]);
 
+// Geometry comes from the same Icons.xaml resources used by the Windows UI.
+const actionIcons = {
+  Windows: 'IconRefresh', Scan: 'IconSearch', Install: 'IconDownload',
+  Defender: 'IconShield', Security: 'IconShield', Store: 'IconApps', Apps: 'IconApps',
+  LenovoVantage: 'IconDownload', LenovoSystemUpdate: 'IconDownload',
+  Vantage: 'IconDevice', SystemUpdate: 'IconDevice',
+};
+function addButtonIcon(button, key) {
+  const text = button.textContent;
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('class', 'button-icon');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.setAttribute('focusable', 'false');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', DATA.icons[key]);
+  icon.append(path);
+  const label = document.createElement('span');
+  label.textContent = text;
+  button.replaceChildren(icon, label);
+  button.setAttribute('aria-label', text);
+}
+
 // Shared dialog for usage help and the session summary.
 function showDialog(title, body) {
   $('dialogTitle').textContent = title;
@@ -78,6 +101,7 @@ function render() {
   step.Actions.forEach((action, i) => {
     const button = document.createElement('button');
     button.textContent = action.Label;
+    addButtonIcon(button, actionIcons[action.Id] || 'IconExternal');
     button.className = (index === 3 && scanned ? action.Id === 'Install' : i === 0)
       ? 'primary'
       : '';
@@ -109,6 +133,8 @@ function render() {
   $('next').textContent = t(
     index === 7 ? 'Summary' : completed(index) ? 'NextStep' : 'ContinueOpen'
   );
+  [['back', 'IconArrowLeft'], ['next', 'IconArrowRight'], ['guide', 'IconDocument'],
+    ['help', 'IconHelp'], ['report', 'IconDocument']].forEach(([id, key]) => addButtonIcon($(id), key));
 }
 
 // Mimic asynchronous work with a short timer. No Windows command is executed.

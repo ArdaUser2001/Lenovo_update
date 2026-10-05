@@ -32,9 +32,9 @@
   </Style>
   <!-- Shared button chrome with 44 px minimum touch target and visible keyboard focus. -->
   <Style x:Key="ButtonBase" TargetType="Button">
-    <Setter Property="MinHeight" Value="{StaticResource TargetSize}"/>
+    <Setter Property="MinHeight" Value="48"/>
     <Setter Property="MinWidth" Value="120"/>
-    <Setter Property="Padding" Value="16,10"/>
+    <Setter Property="Padding" Value="18,12"/>
     <Setter Property="Margin" Value="0,0,8,8"/>
     <Setter Property="BorderThickness" Value="1"/>
     <Setter Property="FontWeight" Value="SemiBold"/>
@@ -145,7 +145,6 @@
     <Setter Property="Margin" Value="0,8,0,20"/>
     <Setter Property="MinHeight" Value="{StaticResource TargetSize}"/>
     <Setter Property="VerticalContentAlignment" Value="Center"/>
-    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
   </Style>
   <!-- List box style for the wizard step navigation. -->
   <Style TargetType="ListBox">
@@ -189,9 +188,9 @@
               <Setter TargetName="NavBorder" Property="Background" Value="{StaticResource PrimarySoftBrush}"/>
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
-              <Setter TargetName="NavBorder" Property="Background" Value="{StaticResource BrandBrush}"/>
+              <Setter TargetName="NavBorder" Property="Background" Value="{StaticResource PrimarySoftBrush}"/>
               <Setter TargetName="NavBorder" Property="BorderBrush" Value="{StaticResource BrandBrush}"/>
-              <Setter Property="Foreground" Value="White"/>
+              <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
             </Trigger>
             <Trigger Property="IsKeyboardFocused" Value="True">
               <Setter TargetName="FocusRing" Property="BorderThickness" Value="2"/>

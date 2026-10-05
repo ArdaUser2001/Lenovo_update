@@ -46,7 +46,7 @@ try {
     if (-not [Windows.Application]::Current) {
         $null = New-Object Windows.Application
     }
-    foreach ($dictionary in @('Theme.xaml','Styles.xaml')) {
+    foreach ($dictionary in @('Icons.xaml','Theme.xaml','Styles.xaml')) {
         [Windows.Application]::Current.Resources.MergedDictionaries.Add((Load-XamlDocument (Join-Path $script:BaseDirectory ('Oberflaeche\' + $dictionary)))) | Out-Null
     }
     $script:Window = Load-XamlDocument (Join-Path $script:BaseDirectory 'Oberflaeche.xaml')
@@ -783,6 +783,61 @@ function Refresh-Progress {
     $script:Ui.ProgressText.Text = (Get-UiText 'DoneProgress') -f $done
 }
 
+# Build scalable outline-icon content. Bind both parts to the owning button foreground.
+function New-IconButtonContent($Button, [string]$Text, [string]$IconKey) {
+    $grid = New-Object Windows.Controls.Grid
+    $iconColumn = New-Object Windows.Controls.ColumnDefinition
+    $iconColumn.Width = New-Object Windows.GridLength -ArgumentList 28
+    $textColumn = New-Object Windows.Controls.ColumnDefinition
+    $textColumn.Width = New-Object Windows.GridLength -ArgumentList 1,([Windows.GridUnitType]::Star)
+    $grid.ColumnDefinitions.Add($iconColumn)
+    $grid.ColumnDefinitions.Add($textColumn)
+    $icon = New-Object Windows.Shapes.Path
+    $icon.Data = $script:Window.FindResource($IconKey)
+    $icon.Width = 18
+    $icon.Height = 18
+    $icon.Stretch = 'Uniform'
+    $icon.StrokeThickness = 1.8
+    $icon.StrokeStartLineCap = 'Round'
+    $icon.StrokeEndLineCap = 'Round'
+    $icon.StrokeLineJoin = 'Round'
+    $icon.VerticalAlignment = 'Center'
+    $icon.HorizontalAlignment = 'Left'
+    $icon.IsHitTestVisible = $false
+    $stroke = New-Object Windows.Data.Binding -ArgumentList 'Foreground'
+    $stroke.Source = $Button
+    $icon.SetBinding([Windows.Shapes.Shape]::StrokeProperty, $stroke) | Out-Null
+    $label = New-Object Windows.Controls.TextBlock
+    $label.Text = $Text
+    $label.TextWrapping = 'Wrap'
+    $label.VerticalAlignment = 'Center'
+    $foreground = New-Object Windows.Data.Binding -ArgumentList 'Foreground'
+    $foreground.Source = $Button
+    $label.SetBinding([Windows.Controls.TextBlock]::ForegroundProperty, $foreground) | Out-Null
+    [Windows.Controls.Grid]::SetColumn($label, 1)
+    $grid.Children.Add($icon) | Out-Null
+    $grid.Children.Add($label) | Out-Null
+    return $grid
+}
+
+# Stable action IDs select a visual symbol; action routing is unchanged.
+function Get-ActionIconKey([string]$Action) {
+    switch ($Action) {
+        'Windows' { 'IconRefresh' }
+        'Scan' { 'IconSearch' }
+        'Install' { 'IconDownload' }
+        'Defender' { 'IconShield' }
+        'Security' { 'IconShield' }
+        'Store' { 'IconApps' }
+        'Apps' { 'IconApps' }
+        'LenovoVantage' { 'IconDownload' }
+        'LenovoSystemUpdate' { 'IconDownload' }
+        'Vantage' { 'IconDevice' }
+        'SystemUpdate' { 'IconDevice' }
+        default { 'IconExternal' }
+    }
+}
+
 # Render the selected step, its available actions, result and next-step guidance.
 function Show-Step {
     $step = $script:Steps[$script:Index]
@@ -815,10 +870,7 @@ function Show-Step {
     }
     foreach ($action in $step.Actions) {
         $button = New-Object Windows.Controls.Button
-        $label = New-Object Windows.Controls.TextBlock
-        $label.Text = $action.Label
-        $label.TextWrapping = 'Wrap'
-        $button.Content = $label;
+        $button.Content = New-IconButtonContent $button $action.Label (Get-ActionIconKey $action.Id)
         $button.Tag = $action.Id
         $button.MaxWidth = 280
         [Windows.Automation.AutomationProperties]::SetName($button, $action.Label)
@@ -865,6 +917,16 @@ function Show-Step {
         $script:Ui.NextHint.Text += Get-UiText 'HintSummary'
     }
     $script:Ui.SectionCounter.Text = (Get-UiText 'SectionCounter') -f ($script:Index + 1)
+    $script:Ui.Back.Content = New-IconButtonContent $script:Ui.Back (Get-UiText 'Back') 'IconArrowLeft'
+    $nextText = [string]$script:Ui.Next.Content
+    $script:Ui.Next.Content = New-IconButtonContent $script:Ui.Next $nextText 'IconArrowRight'
+    [Windows.Automation.AutomationProperties]::SetName($script:Ui.Next, $nextText)
+    [Windows.Automation.AutomationProperties]::SetName($script:Ui.Back, (Get-UiText 'Back'))
+    foreach ($key in @('Guide','Help','Report')) {
+        $iconKey = if ($key -eq 'Help') { 'IconHelp' } else { 'IconDocument' }
+        $script:Ui[$key].Content = New-IconButtonContent $script:Ui[$key] (Get-UiText $key) $iconKey
+        [Windows.Automation.AutomationProperties]::SetName($script:Ui[$key], (Get-UiText $key))
+    }
     Refresh-Progress
 }
 
@@ -1238,7 +1300,17 @@ foreach ($step in $script:Steps) {
     $icon.FontFamily = New-Object Windows.Media.FontFamily -ArgumentList 'Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI Symbol'
     $icon.FontSize = 16
     $icon.Width = 24
-    $icon.Margin = '0,2,8,0'
+    $icon.Margin = '0'
+    $icon.TextAlignment = 'Center'
+    $icon.VerticalAlignment = 'Center'
+    $badge = New-Object Windows.Controls.Border
+    $badge.Width = 32
+    $badge.Height = 32
+    $badge.CornerRadius = New-Object Windows.CornerRadius -ArgumentList 16
+    $badge.Background = $script:Window.FindResource('PrimarySoftBrush')
+    $badge.Margin = '0,0,12,0'
+    $badge.VerticalAlignment = 'Top'
+    $badge.Child = $icon
     [Windows.Controls.Grid]::SetColumn($icon, 0)
     $stack = New-Object Windows.Controls.StackPanel
     [Windows.Controls.Grid]::SetColumn($stack, 1)
@@ -1251,7 +1323,7 @@ foreach ($step in $script:Steps) {
     $caption.FontSize = 11
     $caption.Margin = '0,4,0,0'
     $caption.TextWrapping = 'Wrap'
-    $row.Children.Add($icon) | Out-Null
+    $row.Children.Add($badge) | Out-Null
     $stack.Children.Add($title) | Out-Null
     $stack.Children.Add($caption) | Out-Null
     $row.Children.Add($stack) | Out-Null

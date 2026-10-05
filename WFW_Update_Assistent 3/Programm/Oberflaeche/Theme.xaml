@@ -63,7 +63,7 @@
   <Thickness x:Key="Space8">32</Thickness>
   <!-- Corner radii for cards, controls and badges. -->
   <CornerRadius x:Key="RadiusSmall">4</CornerRadius>
-  <CornerRadius x:Key="RadiusMedium">8</CornerRadius>
+  <CornerRadius x:Key="RadiusMedium">10</CornerRadius>
   <CornerRadius x:Key="RadiusLarge">12</CornerRadius>
   <CornerRadius x:Key="RadiusPill">999</CornerRadius>
   <!-- Typography sizes and line heights. -->
