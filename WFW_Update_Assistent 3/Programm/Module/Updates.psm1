@@ -1,5 +1,8 @@
-﻿Import-Module (Join-Path $PSScriptRoot 'LenovoTools.psm1') -Force -ErrorAction Stop
+﻿# Background worker dispatcher. Result files form the contract with the GUI poller.
+
+Import-Module (Join-Path $PSScriptRoot 'LenovoTools.psm1') -Force -ErrorAction Stop
 Import-Module (Join-Path $PSScriptRoot 'WindowsUpdate.psm1') -Force -ErrorAction Stop
+# Run one update task and publish details.txt plus result.json for the GUI poller.
 function Invoke-Worker {
     param([string]$Mode,[string]$RunDirectory)
     if ([string]::IsNullOrWhiteSpace($RunDirectory) -or -not (Test-Path -LiteralPath $RunDirectory -PathType Container)) {
@@ -7,11 +10,21 @@ function Invoke-Worker {
     }
     $log = Join-Path $RunDirectory 'details.txt'
     $resultPath = Join-Path $RunDirectory 'result.json'
-    $result = [ordered]@{ Task=$Mode; Outcome='Attention'; Message='Bitte Ergebnis prüfen.'; ExitCode=$null; Time=(Get-Date).ToString('o') }
+    $result = [ordered]@{
+        Task = $Mode;
+        Outcome = 'Attention';
+        Message = 'Bitte Ergebnis prüfen.';
+        ExitCode = $null;
+        Time = (Get-Date).ToString('o')
+    }
     try {
         "Start: $Mode | $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Set-Content -LiteralPath $log -Encoding UTF8
         if ($Mode -in @('LenovoVantage','LenovoSystemUpdate')) {
-            $kind = if ($Mode -eq 'LenovoVantage') { 'Vantage' } else { 'SystemUpdate' }
+            $kind = if ($Mode -eq 'LenovoVantage') {
+                'Vantage'
+            } else {
+                'SystemUpdate'
+            }
             $result = Install-LenovoTool -Kind $kind -Log $log
         } elseif ($Mode -eq 'Windows') {
             $result = Invoke-WindowsCycle -Log $log
@@ -32,15 +45,21 @@ function Invoke-Worker {
             }
         } else {
             $winget = Get-Command winget.exe -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
-            if (-not $winget) { throw 'App-Installer (winget) fehlt. Aktualisieren oder installieren Sie App-Installer im Microsoft Store. Nutzen Sie bis dahin die manuellen Update-Funktionen der Programme.' }
+            if (-not $winget) {
+                throw 'App-Installer (winget) fehlt. Aktualisieren oder installieren Sie App-Installer im Microsoft Store. Nutzen Sie bis dahin die manuellen Update-Funktionen der Programme.'
+            }
             $cliArguments = @('upgrade','--source','winget','--accept-source-agreements','--disable-interactivity')
-            if ($Mode -eq 'Install') { $cliArguments += @('--all','--silent','--accept-package-agreements') }
+            if ($Mode -eq 'Install') {
+                $cliArguments += @('--all','--silent','--accept-package-agreements')
+            }
             # Kein --allow-reboot, --force, --include-unknown oder --include-pinned.
             # Stderr von nativen Programmen darf unter Windows PowerShell 5.1 nicht
             # allein als terminierender PowerShell-Fehler behandelt werden.
             $ErrorActionPreference = 'Continue'
             [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding
-            & $winget.Source @cliArguments 2>&1 | ForEach-Object { "$_" } | Add-Content -LiteralPath $log -Encoding UTF8
+            & $winget.Source @cliArguments 2>&1 | ForEach-Object {
+                "$_"
+            } | Add-Content -LiteralPath $log -Encoding UTF8
             $nativeCode = $LASTEXITCODE
             $ErrorActionPreference = 'Stop'
             $result.ExitCode = $nativeCode
@@ -68,6 +87,5 @@ function Invoke-Worker {
     }
     $result | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $resultPath -Encoding UTF8
 }
-
 
 Export-ModuleMember -Function Invoke-Worker

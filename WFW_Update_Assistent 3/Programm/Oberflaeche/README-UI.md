@@ -33,3 +33,13 @@
 The script depends on these existing names: `Logo`, `Navigation`, `ProgressText`, `OverallProgress`, `SectionCounter`, `StepTitle`, `StepMode`, `StepText`, `Actions`, `Status`, `BusyBar`, `CancelRestart`, `Confirm`, `Details`, `DetailText`, `Back`, `Next`, `Report`, and `Guide`.
 
 The redesign adds these names: `AppTitle`, `AppSubtitle`, `LanguageLabel`, `LanguageSwitch`, `SystemChip`, `ProgressLabel`, `CurrentStatusLabel`, `NextActionLabel`, `StatusIcon`, `ConfirmText`, `HelpText`, and `FooterText`.
+
+## Guided wizard layout
+
+The active step starts with `StepIntro`, a concise instruction from `StepIntro1` through `StepIntro8` in the language dictionaries. `Instructions` reveals the original full `StepText`. Keep restart and firmware precautions in the introduction as well as the detailed copy.
+
+`Actions` holds the primary action. `AdditionalActions`, inside `Alternatives`, holds secondary actions; the program scan/install pair stays visible together. Both action containers are disabled during worker activity. Step changes collapse instructions, alternatives and logs; status refreshes and language changes preserve their expansion state.
+
+The footer contains only Back and Next. `Support` groups the PDF guide, usage help, IT report and window-switching guidance. Continuing leaves an unconfirmed step open; the existing completion and update logic remains unchanged.
+
+The macOS preview mirrors this layout. Run `python3 preview/build.py` from the repository root after editing the wizard introductions or shared copy.

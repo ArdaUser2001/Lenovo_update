@@ -1,6 +1,9 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<!-- Shared design tokens. Change values here rather than inside the layout. -->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+  <!-- Palette: brand, surfaces, feedback states and diagnostics. -->
   <Color x:Key="BrandColor">#115E67</Color>
   <Color x:Key="AccentColor">#E09C37</Color>
   <Color x:Key="AppBackgroundColor">#F3F7F6</Color>
@@ -23,7 +26,7 @@
   <Color x:Key="ConsoleBackgroundColor">#101719</Color>
   <Color x:Key="ConsoleTextColor">#DDE7E6</Color>
   <Color x:Key="ShadowColor">#26000000</Color>
-
+  <!-- WPF brushes reference the palette above. -->
   <SolidColorBrush x:Key="BrandBrush" Color="{StaticResource BrandColor}"/>
   <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
   <SolidColorBrush x:Key="AppBackgroundBrush" Color="{StaticResource AppBackgroundColor}"/>
@@ -45,11 +48,11 @@
   <SolidColorBrush x:Key="RunningBrush" Color="{StaticResource RunningColor}"/>
   <SolidColorBrush x:Key="ConsoleBackgroundBrush" Color="{StaticResource ConsoleBackgroundColor}"/>
   <SolidColorBrush x:Key="ConsoleTextBrush" Color="{StaticResource ConsoleTextColor}"/>
-
+  <!-- Font families and icon fallback fonts. -->
   <FontFamily x:Key="AppFontFamily">Segoe UI Variable Text, Segoe UI</FontFamily>
   <FontFamily x:Key="DisplayFontFamily">Segoe UI Variable Display, Segoe UI</FontFamily>
   <FontFamily x:Key="IconFontFamily">Segoe Fluent Icons, Segoe MDL2 Assets, Segoe UI Symbol</FontFamily>
-
+  <!-- Spacing scale used by reusable styles. -->
   <Thickness x:Key="Space0">0</Thickness>
   <Thickness x:Key="Space1">4</Thickness>
   <Thickness x:Key="Space2">8</Thickness>
@@ -58,26 +61,25 @@
   <Thickness x:Key="Space5">20</Thickness>
   <Thickness x:Key="Space6">24</Thickness>
   <Thickness x:Key="Space8">32</Thickness>
-
+  <!-- Corner radii for cards, controls and badges. -->
   <CornerRadius x:Key="RadiusSmall">4</CornerRadius>
   <CornerRadius x:Key="RadiusMedium">8</CornerRadius>
   <CornerRadius x:Key="RadiusLarge">12</CornerRadius>
   <CornerRadius x:Key="RadiusPill">999</CornerRadius>
-
+  <!-- Typography sizes and line heights. -->
   <sys:Double x:Key="FontSizeCaption">12</sys:Double>
   <sys:Double x:Key="FontSizeSmall">13</sys:Double>
   <sys:Double x:Key="FontSizeBody">14</sys:Double>
   <sys:Double x:Key="FontSizeBodyLarge">15</sys:Double>
   <sys:Double x:Key="FontSizeTitle">24</sys:Double>
   <sys:Double x:Key="FontSizeDisplay">28</sys:Double>
-
   <sys:Double x:Key="LineCaption">16</sys:Double>
   <sys:Double x:Key="LineSmall">18</sys:Double>
   <sys:Double x:Key="LineBody">22</sys:Double>
   <sys:Double x:Key="LineBodyLarge">24</sys:Double>
   <sys:Double x:Key="LineTitle">30</sys:Double>
   <sys:Double x:Key="LineDisplay">34</sys:Double>
-
+  <!-- Minimum control size and navigation column width. -->
   <sys:Double x:Key="TargetSize">44</sys:Double>
   <sys:Double x:Key="NavigationWidth">284</sys:Double>
 </ResourceDictionary>

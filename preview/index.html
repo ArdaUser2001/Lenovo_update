@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WFW Update-Assistent · macOS Preview</title>
+    <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="preview">macOS UI Preview · Actions are simulated; no updates or restarts are performed.</div>
+    <div class="app">
+      <!-- Header: brand, language choice and Windows platform label. -->
+      <header class="card">
+        <div class="logo">
+          <img src="../WFW_Update_Assistent%203/Programm/Assets/Logo.png" alt="WFW">
+        </div>
+        <div class="heading">
+          <h1 data-text="AppTitle"></h1>
+          <p data-text="AppSubtitle"></p>
+        </div>
+        <label>
+          <span class="eyebrow" data-text="LanguageLabel"></span>
+          <select id="language" aria-label="Language">
+            <option value="de">Deutsch</option>
+            <option value="en">English</option>
+          </select>
+        </label>
+        <span class="chip system">WINDOWS 11 PRO</span>
+      </header>
+      <!-- Main workspace: step navigation beside the selected step. -->
+      <main>
+        <aside class="card">
+          <div class="eyebrow" data-text="ProgressLabel"></div>
+          <p id="progressText"></p>
+          <progress id="progress" max="8" value="0" aria-label="Progress"></progress>
+          <nav id="navigation" aria-label="Steps"></nav>
+        </aside>
+        <!-- Dynamic content is populated by app.js from generated data.js. -->
+        <section class="card content">
+          <div class="section-head">
+            <div id="counter" class="eyebrow"></div>
+            <h2 id="title"></h2>
+            <span class="chip" id="mode"></span>
+          </div>
+          <div class="body">
+            <p id="intro" class="intro"></p>
+            <details id="instructions" class="instructions">
+              <summary data-text="InstructionsHeader"></summary>
+              <p id="description"></p>
+            </details>
+            <div id="actions" class="buttons"></div>
+            <details id="alternatives">
+              <summary data-text="AlternativesHeader"></summary>
+              <div id="additionalActions" class="buttons"></div>
+            </details>
+            <div id="statusPanel" class="status">
+              <div class="eyebrow" data-text="CurrentStatusLabel"></div>
+              <p id="status" role="status"></p>
+              <strong data-text="NextActionLabel"></strong>
+              <p id="hint"></p>
+              <progress id="busy" hidden aria-label="Running"></progress>
+            </div>
+            <label id="confirmation">
+              <input id="confirm" type="checkbox">
+              <span data-text="ConfirmText"></span>
+            </label>
+            <details id="technical">
+              <summary data-text="DetailsHeader"></summary>
+              <pre id="log"></pre>
+            </details>
+            <details class="support">
+              <summary data-text="SupportHeader"></summary>
+              <div class="buttons">
+          <a class="button" href="../WFW_Update_Assistent%203/Anleitung.pdf" target="_blank" data-text="Guide"></a>
+          <button id="help" data-text="Help"></button>
+          <button id="report" data-text="Report"></button>
+              </div>
+            <p class="help" data-text="HelpText"></p>
+            </details>
+          </div>
+        </section>
+      </main>
+      <!-- Navigation, PDF guide and session help/report actions. -->
+      <footer class="card">
+        <div class="buttons navigation-actions">
+          <button id="back" data-text="Back"></button>
+          <button id="next" class="primary"></button>
+        </div>
+        <small data-text="Footer"></small>
+      </footer>
+    </div>
+    <!-- Reusable native dialog for help and session summaries. -->
+    <dialog id="dialog">
+      <h2 id="dialogTitle"></h2>
+      <pre id="dialogBody"></pre>
+      <form method="dialog">
+        <button autofocus>OK</button>
+      </form>
+    </dialog>
+    <!-- Load generated text before binding the preview behavior. -->
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
