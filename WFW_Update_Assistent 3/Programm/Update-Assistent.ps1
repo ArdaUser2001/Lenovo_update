@@ -57,7 +57,7 @@ try {
     $script:Window.Height = [Math]::Min(820, $area.Height - 24)
     $script:Ui = @{
     }
-    foreach ($name in @('Logo','Navigation','ProgressText','StepTitle','StepMode','StepText','Actions','Status','Confirm','Details','DetailText','BusyBar','Back','Next','Report','Guide','CancelRestart','OverallProgress','SectionCounter','NextHint','Help','AppTitle','AppSubtitle','LanguageLabel','LanguageSwitch','SystemChip','ProgressLabel','CurrentStatusLabel','NextActionLabel','StatusIcon','ConfirmText','HelpText','FooterText','StepIntro','Instructions','Alternatives','AdditionalActions','Support')) {
+    foreach ($name in @('Logo','Navigation','ProgressText','StepTitle','StepMode','StepText','Actions','Status','Confirm','Details','DetailText','BusyBar','Back','Next','Report','Guide','CancelRestart','OverallProgress','SectionCounter','NextHint','Help','AppTitle','AppSubtitle','LanguageLabel','LanguageSwitch','ProgressLabel','CurrentStatusLabel','NextActionLabel','StatusIcon','ConfirmText','HelpText','FooterText','StepIntro','Instructions','Alternatives','AdditionalActions','Support')) {
         $script:Ui[$name] = $script:Window.FindName($name)
     }
     $logoPath = Join-Path $script:BaseDirectory 'Assets/Logo.png'

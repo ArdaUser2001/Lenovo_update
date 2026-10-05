@@ -22,7 +22,7 @@
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
     <!-- Header: company logo, application title and language selection. -->
-    <Border Grid.Row="0" Style="{StaticResource Card}" Padding="18" Margin="0,0,0,16">
+    <Border Grid.Row="0" Style="{StaticResource Card}" Padding="14,6" Margin="0,0,0,12">
       <Grid>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto"/>
@@ -49,40 +49,40 @@
               x:Name="AppTitle"
               Text="Update-Assistent"
               FontFamily="{StaticResource DisplayFontFamily}"
-              FontSize="{StaticResource FontSizeDisplay}"
+              FontSize="22"
               FontWeight="SemiBold"
-              LineHeight="{StaticResource LineDisplay}"/>
+              LineHeight="28"/>
           <TextBlock
               x:Name="AppSubtitle"
               Text="Schritt für Schritt durch die Updates – starten Sie links mit Schritt 1."
-              Margin="0,4,0,0"
-              FontSize="13"
+              Margin="0,2,0,0"
+              FontSize="12"
               Foreground="{StaticResource MutedTextBrush}"/>
         </StackPanel>
         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-          <StackPanel Margin="0,0,12,0" VerticalAlignment="Center">
+          <StackPanel Margin="0" VerticalAlignment="Center" Orientation="Horizontal">
             <TextBlock
                 x:Name="LanguageLabel"
                 Text="Sprache"
                 FontSize="{StaticResource FontSizeCaption}"
                 FontWeight="Bold"
                 Foreground="{StaticResource BrandBrush}"
-                HorizontalAlignment="Right"/>
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Margin="0,0,8,0"/>
             <ComboBox
                 x:Name="LanguageSwitch"
-                Margin="0,4,0,0"
+                Margin="0"
                 AutomationProperties.Name="Sprache auswählen"
-                SelectedIndex="0">
+                SelectedIndex="0"
+                MinHeight="32"
+                MinWidth="112"
+                Padding="8,4"
+                VerticalAlignment="Center">
               <ComboBoxItem Tag="de" Content="Deutsch"/>
               <ComboBoxItem Tag="en" Content="English"/>
             </ComboBox>
           </StackPanel>
-          <Border Style="{StaticResource Chip}" VerticalAlignment="Center">
-            <TextBlock
-                x:Name="SystemChip"
-                    Style="{StaticResource ChipText}"
-                Text="WINDOWS 11 PRO"/>
-          </Border>
         </StackPanel>
       </Grid>
     </Border>
@@ -151,9 +151,7 @@
                   FontWeight="SemiBold"
                   LineHeight="{StaticResource LineTitle}"/>
               <Border Style="{StaticResource Chip}" HorizontalAlignment="Left" Margin="0,10,0,0">
-                <TextBlock
-                    x:Name="StepMode"
-                    Style="{StaticResource ChipText}"/>
+                <TextBlock x:Name="StepMode" Style="{StaticResource ChipText}"/>
               </Border>
             </StackPanel>
           </Border>
@@ -282,7 +280,7 @@
       </Border>
     </Grid>
     <!-- Footer: step navigation, documentation and local reports. -->
-    <Border Grid.Row="2" Style="{StaticResource Card}" Padding="14" Margin="0,16,0,0">
+    <Border Grid.Row="2" Style="{StaticResource Card}" Padding="12,8" Margin="0,12,0,0">
       <Grid>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -298,23 +296,28 @@
               Content="Zurück"
               Style="{StaticResource SecondaryButton}"
               AutomationProperties.Name="Zurück"
-              HorizontalAlignment="Left"/>
+              HorizontalAlignment="Left"
+              MinHeight="44"
+              Padding="14,8"
+              Margin="0"/>
           <Button
               x:Name="Next"
               Content="Weiter"
               Style="{StaticResource PrimaryButton}"
               AutomationProperties.Name="Weiter"
               Grid.Column="1"
-              Margin="0,0,0,8"/>
+              Margin="0"
+              MinHeight="44"
+              Padding="14,8"/>
         </Grid>
         <TextBlock
             x:Name="FooterText"
             Grid.Row="1"
             Text="Ardawan Khosronezhad · IT Germany   |   Version 1.2 · Pilotfassung"
-            FontSize="11"
+            FontSize="10"
             Foreground="{StaticResource MutedTextBrush}"
-            LineHeight="16"
-            Margin="2,2,0,0"/>
+            LineHeight="14"
+            Margin="2,4,0,0"/>
       </Grid>
     </Border>
   </Grid>

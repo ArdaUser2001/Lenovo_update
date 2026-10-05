@@ -32,7 +32,7 @@
 
 The script depends on these existing names: `Logo`, `Navigation`, `ProgressText`, `OverallProgress`, `SectionCounter`, `StepTitle`, `StepMode`, `StepText`, `Actions`, `Status`, `BusyBar`, `CancelRestart`, `Confirm`, `Details`, `DetailText`, `Back`, `Next`, `Report`, and `Guide`.
 
-The redesign adds these names: `AppTitle`, `AppSubtitle`, `LanguageLabel`, `LanguageSwitch`, `SystemChip`, `ProgressLabel`, `CurrentStatusLabel`, `NextActionLabel`, `StatusIcon`, `ConfirmText`, `HelpText`, and `FooterText`.
+The redesign adds these names: `AppTitle`, `AppSubtitle`, `LanguageLabel`, `LanguageSwitch`, `ProgressLabel`, `CurrentStatusLabel`, `NextActionLabel`, `StatusIcon`, `ConfirmText`, `HelpText`, and `FooterText`.
 
 ## Guided wizard layout
 
@@ -53,3 +53,7 @@ The Windows validation script parses the launcher preflight and loads all three 
 ## Windows badge rendering
 
 Step circles always show their number in the explicit `StepNumberText` style (Segoe UI); status remains in the adjacent caption. Do not use the symbol font for digits. Mode/platform labels use `ChipText`, with natural line measurement and wrapping. `RadiusPill` is a WPF radius of 16 device-independent pixels, not the CSS convention of 999px.
+
+## Compact window bars
+
+The header keeps the logo at 216 × 78 while reducing vertical padding to 6. The title is 22 px, and the language label sits beside the 32 px selector. The Windows edition badge is removed. Footer padding is 8 px vertically; Back/Next keep 44 px targets and the credits use a compact second line. Main action buttons retain their existing sizes.
