@@ -41,7 +41,7 @@ $null = [scriptblock]::Create(($commandLines -join ' '))
 [xml]$xaml = Get-Content -LiteralPath (Join-Path $program 'Oberflaeche.xaml') -Raw -Encoding UTF8
 
 # Verify that the packaged launcher, guide, logo and worker modules exist.
-foreach ($name in @('UPDATE-ASSISTENT-STARTEN.cmd','Anleitung.pdf','START-HIER.txt','Programm/Assets/Logo.png','Programm/Module/Updates.psm1','Programm/Module/WindowsUpdate.psm1','Programm/Module/LenovoTools.psm1')) {
+foreach ($name in @('UPDATE-ASSISTENT-STARTEN.cmd','Anleitung.pdf','START-HIER.txt','Programm/Assets/Logo.png','Programm/Module/Updates.psm1','Programm/Module/WindowsUpdate.psm1','Programm/Module/LenovoTools.psm1','Programm/Module/QuickRun.psm1','Programm/QuickRun.Gui.ps1')) {
     if (-not (Test-Path -LiteralPath (Join-Path $root $name))) {
         throw ('Datei fehlt: '+$name)
     }

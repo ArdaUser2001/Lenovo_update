@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Update-Assistent starten (Windows)",
+      "type": "shell",
+      "command": "echo 'Die WPF-Oberflaeche benoetigt Windows 11.'",
+      "windows": { "command": ".\\UPDATE-ASSISTENT-STARTEN.cmd" },
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "inAgents": true
+    },
+    {
+      "label": "Paket und WPF validieren (Windows)",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": ["-NoLogo", "-NoProfile", "-STA", "-File", "${workspaceFolder}/IT/Validieren.ps1"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "inAgents": true
+    },
+    {
+      "label": "Update-Ablauf testen (ohne echte Updates)",
+      "type": "process",
+      "command": "pwsh",
+      "windows": { "command": "powershell.exe" },
+      "args": ["-NoLogo", "-NoProfile", "-File", "${workspaceFolder}/IT/Test-QuickRun.ps1"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "inAgents": true
+    }
+  ]
+}

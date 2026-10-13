@@ -148,7 +148,7 @@ function Invoke-WindowsCycle([string]$Log) {
     }
     Write-WuLog $Log 'Windows sucht nach automatisch vorgesehenen Software-Updates. Bitte warten.'
     $session = New-Object -ComObject Microsoft.Update.Session
-    $session.ClientApplicationID = 'WFW Update-Assistent 1.2'
+    $session.ClientApplicationID = 'WFW Update-Assistent 1.3'
     $searcher = $session.CreateUpdateSearcher()
     $found = $searcher.Search("IsInstalled=0 and IsHidden=0 and Type='Software' and AutoSelectOnWebSites=1")
     if ([int]$found.ResultCode -ne 2) {
@@ -238,3 +238,85 @@ function Invoke-WindowsCycle([string]$Log) {
     return $r
 }
 Export-ModuleMember -Function Invoke-WindowsCycle
+
+# Select applicable driver packages. Firmware and ambiguous optional alternatives stay manual.
+function Select-DriverUpdates {
+    param([object[]]$Updates, [bool]$IncludeOptional = $false)
+    $accepted = @()
+    foreach ($u in $Updates) {
+        if ($u.DriverClass -match '^(Firmware|SystemFirmware)$' -or $u.Title -match '\b(BIOS|UEFI|Firmware)\b' -or
+            $u.InstallationBehavior.CanRequestUserInput -or [string]::IsNullOrWhiteSpace([string]$u.DriverHardwareID)) { continue }
+        if (-not $IncludeOptional -and ($u.BrowseOnly -or -not $u.IsAssigned)) { continue }
+        $accepted += $u
+    }
+    foreach ($group in @($accepted | Group-Object DriverHardwareID)) {
+        $recommended = @($group.Group | Where-Object { $_.IsAssigned -and -not $_.BrowseOnly })
+        if ($recommended.Count -eq 1) { $recommended[0] }
+        elseif ($recommended.Count -eq 0 -and $group.Count -eq 1) { $group.Group[0] }
+        # Multiple alternatives for one hardware ID require a manual choice.
+    }
+}
+function Invoke-DriverCycle {
+    param([string]$Log, [bool]$IncludeOptional = $false)
+    $r = [ordered]@{Task='Drivers';Outcome='Attention';Message='';ExitCode=$null;Time=(Get-Date).ToString('o');RebootRequired=$false}
+    Assert-UnmanagedDevice
+    Add-Type -AssemblyName System.Windows.Forms
+    if ([Windows.Forms.SystemInformation]::PowerStatus.PowerLineStatus -eq 'Offline') { throw 'Bitte das Ladekabel anschließen und die Treiberprüfung erneut starten.' }
+    $system = New-Object -ComObject Microsoft.Update.SystemInfo
+    if ($system.RebootRequired) {
+        $r.Outcome='RestartNeeded'; $r.RebootRequired=$true; $r.Message='Vor der Treiberinstallation ist ein Neustart erforderlich.'; return $r
+    }
+    $session = New-Object -ComObject Microsoft.Update.Session
+    $session.ClientApplicationID = 'WFW Update-Assistent'
+    $searcher = $session.CreateUpdateSearcher()
+    $criteria = "IsInstalled=0 and IsHidden=0 and Type='Driver'"
+    $found = $searcher.Search($criteria)
+    if ([int]$found.ResultCode -ne 2) { throw 'Die Treibersuche war nicht vollständig erfolgreich. Bitte Windows Update prüfen.' }
+    $updates = @()
+    for ($i=0; $i -lt $found.Updates.Count; $i++) { $updates += $found.Updates.Item($i) }
+    $selected = @(Select-DriverUpdates -Updates $updates -IncludeOptional $IncludeOptional)
+    $selectedIds = @($selected | ForEach-Object { $_.Identity.UpdateID })
+    foreach ($u in $updates) {
+        if ($u.Identity.UpdateID -notin $selectedIds) { Write-WuLog $Log ('Manuell/optional zu prüfen: ' + $u.Title) }
+    }
+    $failed = 0; $installed = 0
+    foreach ($u in $selected) {
+        try {
+            if ($system.RebootRequired) { $r.RebootRequired=$true; break }
+            if (-not $u.EulaAccepted) { $u.AcceptEula() }
+            $collection = New-Object -ComObject Microsoft.Update.UpdateColl
+            $null = $collection.Add($u)
+            $downloader = $session.CreateUpdateDownloader(); $downloader.Updates=$collection
+            Write-WuLog $Log ('Treiber herunterladen: ' + $u.Title)
+            $download = $downloader.Download()
+            if ([int]$download.ResultCode -ne 2 -or -not $u.IsDownloaded) { throw 'Download nicht vollständig erfolgreich.' }
+            $installer = $session.CreateUpdateInstaller(); $installer.Updates=$collection
+            if ($installer.IsBusy) { throw 'Eine andere Windows-Installation läuft bereits.' }
+            if ($installer.RebootRequiredBeforeInstallation) { $r.RebootRequired=$true; break }
+            Write-WuLog $Log ('Treiber installieren: ' + $u.Title)
+            $installation = $installer.Install(); $one = $installation.GetUpdateResult(0)
+            Write-WuLog $Log ("Ergebnis $($one.ResultCode), HRESULT $($one.HResult): $($u.Title)")
+            if ([int]$one.ResultCode -eq 2) { $installed++ } else { $failed++ }
+            if ($installation.RebootRequired -or $system.RebootRequired) { $r.RebootRequired=$true; break }
+        } catch { $failed++; Write-WuLog $Log ($u.Title + ': ' + $_.Exception.Message) }
+    }
+    if ($failed -gt 0) {
+        $r.Message="$failed Treiberinstallation(en) fehlgeschlagen. Bitte Windows Update prüfen."
+        if ($r.RebootRequired) { $r.Message += ' Bitte die Arbeit speichern und selbst neu starten.' }
+    } elseif ($r.RebootRequired) {
+        $r.Outcome='RestartNeeded'; $r.Message='Ein Neustart ist nötig. Danach wird die Treiberprüfung fortgesetzt.'
+    } else {
+        $remaining = $searcher.Search($criteria)
+        if ([int]$remaining.ResultCode -ne 2) { throw 'Die abschließende Treiberprüfung konnte nicht bestätigt werden.' }
+        $remainingUpdates = @()
+        for ($i=0; $i -lt $remaining.Updates.Count; $i++) { $remainingUpdates += $remaining.Updates.Item($i) }
+        if (@(Select-DriverUpdates -Updates $remainingUpdates -IncludeOptional $IncludeOptional).Count -gt 0) {
+            $r.Message='Weitere passende Treiber sind verfügbar. Bitte Windows Update prüfen.'
+        } else {
+            $r.Outcome='Done'; $r.Message="$installed Treiber installiert; keine weiteren eindeutig passenden Treiber in der gewählten Auswahl."
+            if ($remaining.Updates.Count -gt 0) { $r.Message += ' Optionale, alternative oder Firmware-Angebote bleiben zur manuellen Prüfung.' }
+        }
+    }
+    $r
+}
+Export-ModuleMember -Function Invoke-WindowsCycle,Invoke-DriverCycle,Select-DriverUpdates,Assert-UnmanagedDevice

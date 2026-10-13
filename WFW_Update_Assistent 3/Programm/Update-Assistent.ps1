@@ -1,14 +1,16 @@
 ﻿#requires -Version 5.1
 <#
-WFW Update-Assistent 1.2 | Ardawan Khosronezhad, IT Germany
+WFW Update-Assistent 1.3 | Ardawan Khosronezhad, IT Germany
 Windows PowerShell 5.1 / WPF. Pilotfassung; Windows-Abnahme siehe IT-Testplan.md.
 Windows-Durchlauf mit angekündigtem Neustart; keine automatische BIOS-Installation.
 #>
 [CmdletBinding()]
 param(
-[ValidateSet('Gui','Scan','Install','Defender','Windows','LenovoVantage','LenovoSystemUpdate')][string]$Mode = 'Gui',
+[ValidateSet('Gui','Scan','Install','Defender','Windows','LenovoVantage','LenovoSystemUpdate','Drivers','DefenderSecure')][string]$Mode = 'Gui',
 [string]$RunDirectory,
-[switch]$Resume
+[switch]$Resume,
+[switch]$ResumeQuickRun,
+[switch]$IncludeOptionalDrivers
 )
 $ErrorActionPreference = 'Stop'
 $script:ScriptPath = $PSCommandPath
@@ -17,7 +19,7 @@ $script:BaseDirectory = $PSScriptRoot
 # Worker entry point: return before loading WPF when invoked for a background task.
 if ($Mode -ne 'Gui') {
     Import-Module (Join-Path $PSScriptRoot 'Module/Updates.psm1') -Force -ErrorAction Stop
-    Invoke-Worker -Mode $Mode -RunDirectory $RunDirectory
+    Invoke-Worker -Mode $Mode -RunDirectory $RunDirectory -IncludeOptionalDrivers:$IncludeOptionalDrivers
     exit 0
 }
 
@@ -57,7 +59,7 @@ try {
     $script:Window.Height = [Math]::Min(820, $area.Height - 24)
     $script:Ui = @{
     }
-    foreach ($name in @('Logo','Navigation','ProgressText','StepTitle','StepText','Actions','Status','Confirm','Details','DetailText','BusyBar','Back','Next','Report','Guide','CancelRestart','OverallProgress','SectionCounter','NextHint','Help','LanguageLabel','LanguageSwitch','ProgressLabel','CurrentStatusLabel','StatusIcon','ConfirmText','HelpText','FooterText','StepIntro','Instructions','Alternatives','AdditionalActions','Support','StepOverview','ContentScroll')) {
+    foreach ($name in @('Logo','Navigation','ProgressText','StepTitle','StepText','Actions','Status','Confirm','Details','DetailText','BusyBar','Back','Next','Report','Guide','CancelRestart','OverallProgress','SectionCounter','NextHint','Help','LanguageLabel','LanguageSwitch','ProgressLabel','CurrentStatusLabel','StatusIcon','ConfirmText','HelpText','FooterText','StepIntro','Instructions','Alternatives','AdditionalActions','Support','StepOverview','ContentScroll','QuickOptions','OptionalDrivers','OptionalDriversText','QuickOptionsHelp','QuickResults','QuickResultsTitle','QuickResultsText')) {
         $script:Ui[$name] = $script:Window.FindName($name)
     }
     $logoPath = Join-Path $script:BaseDirectory 'Assets/Logo.png'
@@ -335,7 +337,7 @@ $script:UiText = @{
         Help = 'Hilfe zur Bedienung';
         Report = 'Protokoll für IT';
         CancelRestart = 'Neustart verschieben';
-        Footer = 'Ardawan Khosronezhad · IT Germany   |   Version 1.2 · Pilotfassung';
+        Footer = 'Ardawan Khosronezhad · IT Germany   |   Version 1.3 · Pilotfassung';
         DoneProgress = '{0} von 8 Bereichen bearbeitet';
         SectionCounter = 'SCHRITT {0} VON 8';
         Summary = 'Zusammenfassung ansehen';
@@ -420,7 +422,7 @@ $script:UiText = @{
         Help = 'Usage help';
         Report = 'Log for IT';
         CancelRestart = 'Postpone restart';
-        Footer = 'Ardawan Khosronezhad · IT Germany   |   Version 1.2 · pilot version';
+        Footer = 'Ardawan Khosronezhad · IT Germany   |   Version 1.3 · pilot version';
         DoneProgress = '{0} of 8 sections completed';
         SectionCounter = 'STEP {0} OF 8';
         Summary = 'View summary';
@@ -472,6 +474,8 @@ $script:UiText = @{
         StateToolReady = 'Program ready'
     }
 }
+. (Join-Path $PSScriptRoot 'QuickRun.Gui.ps1')
+
 # Session state: parallel arrays use the same index as the step definitions.
 $script:Steps = $script:StepsByLanguage[$script:Language]
 $script:States = @($script:Steps | ForEach-Object {
@@ -633,6 +637,7 @@ function Set-Language([string]$Language) {
         return
     }
     $script:Language = $Language
+    if ($script:QuickPlan -and -not $script:QuickInitializing) { $script:QuickPlan.Language=$Language; Save-QuickState }
     $script:Steps = $script:StepsByLanguage[$script:Language]
     for ($i = 0; $i -lt $script:Messages.Count; $i++) {
         if ($script:States[$i] -eq 'Offen' -and $script:Messages[$i] -in @($script:UiText.de.NotEdited,$script:UiText.en.NotEdited)) {
@@ -756,10 +761,16 @@ function Add-Event([string]$Message) {
 
 # Write step results and session events to the local IT summary.
 function Save-Report {
-    $lines = @('WFW Update-Assistent 1.2', 'Ardawan Khosronezhad | IT Germany', ('Stand: ' + (Get-Date -Format 'dd.MM.yyyy HH:mm:ss')), '', 'Diese Angaben gelten nur für diese Sitzung. Manuelle Bestätigungen wurden nicht technisch geprüft.', '')
+    $lines = @('WFW Update-Assistent 1.3', 'Ardawan Khosronezhad | IT Germany', ('Stand: ' + (Get-Date -Format 'dd.MM.yyyy HH:mm:ss')), '', 'Diese Angaben gelten nur für diese Sitzung. Manuelle Bestätigungen wurden nicht technisch geprüft.', '')
     for ($i = 0; $i -lt $script:Steps.Count; $i++) {
         $lines += ($script:Steps[$i].Title + ': ' + $script:States[$i]);
         $lines += $script:Messages[$i];
+        $lines += ''
+    }
+    if ($script:QuickPlan) {
+        $lines += 'Gemeinsamer Durchlauf / Combined run:'
+        $lines += Get-QuickSummary
+        $lines += ('Status: ' + $script:QuickPlan.Status)
         $lines += ''
     }
     $lines += 'Ablauf:';
@@ -823,6 +834,9 @@ function New-IconButtonContent($Button, [string]$Text, [string]$IconKey) {
 # Stable action IDs select a visual symbol; action routing is unchanged.
 function Get-ActionIconKey([string]$Action) {
     switch ($Action) {
+        'QuickRun' { 'IconRefresh' }
+        'DefenderSecure' { 'IconShield' }
+        'Drivers' { 'IconDevice' }
         'Windows' { 'IconRefresh' }
         'Scan' { 'IconSearch' }
         'Install' { 'IconDownload' }
@@ -873,8 +887,12 @@ function Show-Step {
         $button = New-Object Windows.Controls.Button
         $button.Content = New-IconButtonContent $button $action.Label (Get-ActionIconKey $action.Id)
         $button.Tag = $action.Id
+        if ($action.Id -eq 'QuickRun' -and $script:QuickPlan -and $script:QuickPlan.Status -in @('Running','AwaitingRestart')) {
+            $button.Content = New-IconButtonContent $button (Get-QuickText 'Continue') 'IconRefresh'
+            [Windows.Automation.AutomationProperties]::SetName($button, (Get-QuickText 'Continue'))
+        }
         $button.MaxWidth = 280
-        [Windows.Automation.AutomationProperties]::SetName($button, $action.Label)
+        [Windows.Automation.AutomationProperties]::SetName($button, $(if ($action.Id -eq 'QuickRun' -and $script:QuickPlan -and $script:QuickPlan.Status -in @('Running','AwaitingRestart')) { Get-QuickText 'Continue' } else { $action.Label }))
         $button.Style = if ($action.Id -eq $primaryAction) {
             $script:Window.FindResource('PrimaryButton')
         } else {
@@ -929,6 +947,7 @@ function Show-Step {
         [Windows.Automation.AutomationProperties]::SetName($script:Ui[$key], (Get-UiText $key))
     }
     Refresh-Progress
+    Update-QuickView
 }
 
 # Open a Windows settings URI or program and record the handoff to the user.
@@ -958,14 +977,20 @@ function Set-Busy([bool]$Value) {
     if ($Value) {
         $script:Ui.NextHint.Text = Get-UiText 'Busy'
     }
+    Update-QuickView
     if (-not $Value) {
         Show-Step
     }
 }
 
 # Confirm the action, launch an isolated worker and start polling its result files.
-function Start-Task([string]$Task) {
-    if ($script:Busy) {
+function Start-Task {
+    param([string]$Task, [switch]$SkipConfirmation)
+    if ($script:Busy -and -not $SkipConfirmation) {
+        return
+    }
+    if (-not $SkipConfirmation -and $script:QuickPlan -and $script:QuickPlan.Status -in @('Running','AwaitingRestart')) {
+        [Windows.MessageBox]::Show((Get-QuickText 'Interrupted'), (Get-QuickText 'Title')) | Out-Null
         return
     }
     if ($Task -in @('LenovoVantage','LenovoSystemUpdate')) {
@@ -984,16 +1009,22 @@ function Start-Task([string]$Task) {
     } else {
         $dialog = Get-StartDialog $Task ''
     }
-    $choice = [Windows.MessageBox]::Show($dialog.Message, $dialog.Title, 'YesNo', 'Question')
-    if ($choice -ne 'Yes') {
-        return
+    if (-not $SkipConfirmation) {
+        $choice = [Windows.MessageBox]::Show($dialog.Message, $dialog.Title, 'YesNo', 'Question')
+        if ($choice -ne 'Yes') { return }
     }
+    $script:ActiveTask = $Task
     try {
         $script:CurrentRun = Join-Path $script:SessionDirectory ([guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path $script:CurrentRun | Out-Null
         $exe = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
         # Vollständige Pfade in doppelten Anführungszeichen; keine dynamischen Befehle.
         $argumentLine = '-NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -File "{0}" -Mode {1} -RunDirectory "{2}"' -f $script:ScriptPath,$Task,$script:CurrentRun
+        if ($Task -eq 'Drivers' -and $script:QuickPlan.IncludeOptionalDrivers) { $argumentLine += ' -IncludeOptionalDrivers' }
+        if ($SkipConfirmation) {
+            $script:QuickPlan.CurrentRun = $script:CurrentRun
+            Save-QuickState
+        }
         $parameters = @{
             FilePath = $exe;
             ArgumentList = $argumentLine;
@@ -1001,7 +1032,7 @@ function Start-Task([string]$Task) {
             WindowStyle = 'Hidden';
             ErrorAction = 'Stop'
         }
-        if ($Task -in @('Defender','Windows')) {
+        if ($Task -in @('Defender','DefenderSecure','Windows','Drivers')) {
             $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
             $principal = New-Object Security.Principal.WindowsPrincipal $identity
             if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
@@ -1023,6 +1054,15 @@ function Start-Task([string]$Task) {
         Set-Busy $true
         $script:Timer.Start()
     } catch {
+        if ($SkipConfirmation) {
+            if ($script:ActiveProcess -and -not $script:ActiveProcess.HasExited) {
+                Set-Busy $true
+                $script:Timer.Start()
+                return
+            }
+            Complete-QuickWorker ([pscustomobject]@{Task=$Task;Outcome='Attention';Message=((Get-UiText 'NotStartedOrCancelled') + ' ' + $_.Exception.Message);RebootRequired=$false})
+            return
+        }
         $script:States[$script:Index] = 'Offen'
         $script:Messages[$script:Index] = Get-UiText 'NotStartedOrCancelled'
         Add-Event ($script:Messages[$script:Index] + ' ' + $_.Exception.Message)
@@ -1068,6 +1108,7 @@ function Open-Lenovo([string]$Kind) {
 # Route stable action IDs from the step data to workers or external tools.
 function Invoke-StepAction([string]$Action) {
     switch ($Action) {
+        'QuickRun' { Start-QuickRun }
         'Windows' {
             Start-Task 'Windows'
         }
@@ -1144,6 +1185,7 @@ $script:Timer.Add_Tick({
             $resultFile = Join-Path $script:CurrentRun 'result.json'
             if (Test-Path -LiteralPath $resultFile) {
                 $result = Get-Content -LiteralPath $resultFile -Raw -Encoding UTF8 | ConvertFrom-Json
+                if ($script:QuickActive) { Complete-QuickWorker $result; return }
                 $script:Messages[$script:Index] = [string]$result.Message
                 $script:States[$script:Index] = switch ($result.Outcome) {
                     'Done' {
@@ -1166,6 +1208,7 @@ $script:Timer.Add_Tick({
                     $script:HasScan = ($result.Outcome -eq 'Scanned')
                 }
             } else {
+                if ($script:QuickActive) { Complete-QuickWorker $null; return }
                 $script:States[$script:Index] = 'Bitte prüfen'
                 $script:Messages[$script:Index] = Get-UiText 'ResultMissing'
             }
@@ -1185,6 +1228,10 @@ $script:Timer.Add_Tick({
             $script:Ui.Status.Text = Get-UiText 'StillRunning'
             $script:Timer.Start()
         } else {
+            if ($script:QuickActive) {
+                $script:QuickActive=$false
+                if ($script:QuickPlan) { $script:QuickPlan.Status='Paused'; $script:QuickPlan.PauseReason='ResultReadFailed'; try {Save-QuickState} catch {} }
+            }
             $script:States[$script:Index] = 'Bitte prüfen'
             $script:Messages[$script:Index] = Get-UiText 'ResultReadFailed'
             Set-Busy $false
@@ -1220,7 +1267,11 @@ function Stop-RestartCountdown {
     $script:RestartTimer.Stop()
     $script:RestartPending = $false
     $script:Ui.CancelRestart.Visibility = 'Collapsed'
-    $script:Messages[0] = Get-UiText 'RestartPostponed'
+    if ($script:QuickPlan -and $script:QuickPlan.Status -eq 'AwaitingRestart') {
+        $script:QuickPlan.RegisteredResume=$false
+        Save-QuickState
+    }
+    $script:Messages[0] = if ($script:QuickPlan -and $script:QuickPlan.Status -eq 'AwaitingRestart') { Get-QuickText 'Postponed' } else { Get-UiText 'RestartPostponed' }
     $script:States[0] = 'Neustart nötig'
     Set-Busy $false
     Add-Event 'Der Benutzer hat den automatischen Neustart verschoben.'
@@ -1254,6 +1305,7 @@ $script:RestartTimer.Add_Tick({
         } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $script:ResumePath -Encoding UTF8
         $exe = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
         $command = '"{0}" -NoProfile -STA -ExecutionPolicy RemoteSigned -File "{1}" -Resume' -f $exe,$script:ScriptPath
+        if ($script:QuickPlan -and $script:QuickPlan.Status -eq 'AwaitingRestart') { $command += ' -ResumeQuickRun' }
         # RunOnce ist auf 260 Zeichen begrenzt. Keine stille, unzuverlässige Registrierung.
         if ($command.Length -gt 260) {
             throw 'Der Programmpfad ist zu lang für die automatische Wiederaufnahme. Bitte Paket in einen kürzeren Ordner verschieben oder manuell neu starten.'
@@ -1263,6 +1315,11 @@ $script:RestartTimer.Add_Tick({
             New-Item $runOnce -Force | Out-Null
         }
         New-ItemProperty -Path $runOnce -Name WFWUpdateAssistant -Value $command -PropertyType String -Force | Out-Null
+        if ($script:QuickPlan -and $script:QuickPlan.Status -eq 'AwaitingRestart') {
+            $script:QuickPlan.RegisteredResume=$true
+            $script:QuickPlan.ResumeConsentAt=(Get-Date).ToString('o')
+            Save-QuickState
+        }
         Save-Report
         # Eigener Countdown statt shutdown /t 120: /t > 0 würde /f implizieren.
         # /t 0 ohne /f lässt Anwendungen den Neustart blockieren.
@@ -1274,6 +1331,9 @@ $script:RestartTimer.Add_Tick({
         $script:Ui.CancelRestart.Visibility = 'Collapsed'
         $script:Messages[0] = Get-UiText 'RestartStarted'
         Set-Busy $false
+        if ($script:QuickPlan -and $script:QuickPlan.Status -eq 'AwaitingRestart') {
+            $script:Ui.NextHint.Text = Get-QuickText 'RestartFirst'
+        }
     } catch {
         $script:RestartPending = $false
         $script:Ui.CancelRestart.Visibility = 'Collapsed'
@@ -1440,8 +1500,9 @@ Apply-StaticText
 if ($Resume) {
     Restore-Session
 }
+Initialize-QuickSession
 $script:Ui.Navigation.SelectedIndex = 0
-Add-Event 'Assistent gestartet. Keine Updates automatisch gestartet.'
+Add-Event 'Assistent geöffnet. Updates folgen nur Startbestätigung oder gespeicherter Wiederaufnahme.'
 Save-Report
 try {
     $script:Window.ShowDialog() | Out-Null

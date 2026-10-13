@@ -196,3 +196,63 @@ Diese Prüfungen sind auf Windows noch auszuführen:
 - Windows- und Defender-Aktion starten den Worker über WindowsPowerShell/v1.0; UAC-Abbruch zeigt keinen Erfolg.
 - Countdown verschieben und nach Neustart fortsetzen; die Windows-Prüfung bleibt Schritt 1.
 - Den gesamten Ablauf mit einer Person ohne Windows-Vorkenntnisse durchgehen; insbesondere Fensterwechsel, Rückfragen und offene Schritte erklären lassen.
+
+## Version 1.3: gemeinsamer Update-Durchlauf (13. Oktober 2026)
+
+«Computer aktualisieren» startet nach einer einzigen Bestätigung die Aufgaben
+DefenderSecure → Install → Windows → Drivers. winget läuft im ursprünglichen
+Benutzerkonto; Windows/Defender/Treiber laufen bei Bedarf mit UAC. Es werden
+keine Kennwörter gespeichert. Store-Apps, Aufräumen und Lenovo-Firmware bleiben
+separate Prüfungen. Optionale Treiber benötigen das Häkchen vor dem Start.
+
+QuickRun.psm1 enthält die Zustandsmaschine; QuickRun.Gui.ps1 bindet sie an die
+bestehende WPF-Oberfläche. Gemeinsamer-Durchlauf.json wird atomar im lokalen
+Benutzerprofil gespeichert. Ergebnisdateien und worker.json ermöglichen die
+Wiederanbindung an einen noch laufenden Prozess statt eines zweiten Installers.
+Nach registriertem Neustart startet RunOnce dieselbe Oberfläche mit -Resume
+-ResumeQuickRun. Nur ein neuer Boot und höchstens sieben Tage alte Zustimmung
+erlauben automatisches Fortsetzen. Ein verschobener Neustart benötigt die
+Fortsetzen-Schaltfläche nach einem echten Neustart. Drei Neustarts begrenzen
+den Lauf. Fehler mit Neustartbedarf führen zum manuellen Neustart.
+
+Treiber: Windows Update Agent, Type='Driver', nicht installiert und nicht
+ausgeblendet. Standardmäßig nur IsAssigned und nicht BrowseOnly. Firmware,
+BIOS/UEFI, interaktive Updates, fehlende Hardware-IDs und mehrdeutige Angebote
+bleiben manuell. Pro Hardware-ID wird höchstens ein eindeutiges Paket gewählt;
+ein empfohlenes Paket hat Vorrang vor einer optionalen Alternative.
+
+Defender: nur aktiver Normal-Modus. Schutzinformationen aktualisieren; erlaubte
+lokale Echtzeit-, Verhaltens-, Download- und Dateischutz-Einstellungen aktivieren
+und den Status danach prüfen. Manipulationsschutz, Geräteverwaltung und
+Defender-Richtlinien verhindern lokale Einstellungsänderungen. Ein anderer
+Virenschutz wird nicht ersetzt. Nicht bestätigter Schutz bleibt «Bitte prüfen».
+
+Auf Windows vor Verteilung ausführen:
+
+| Prüfung | Erwartung |
+|---|---|
+| Start DE/EN, kleine Fenster, 100/150/200 % Skalierung | Startknopf, optionales Häkchen und alle vier Ergebnisse lesbar; Inhalt scrollt |
+| Bestätigung ablehnen | Keine Installationen, keine Einstellungsänderungen |
+| Ladekabel fehlt | Kein gemeinsamer Durchlauf gestartet |
+| Ein Start mit Updates | Vier Aufgaben laufen nacheinander, keine erneute App-Suche durch den Benutzer |
+| UAC bei einer Aufgabe ablehnen | Diese Aufgabe «Bitte prüfen»; unabhängige Aufgaben laufen weiter |
+| Domäne/Entra/MDM/Updatevorgaben | Keine Umgehung; Windows/Treiber melden den Firmenweg |
+| Defender lokal deaktivierte unterstützte Funktionen | Nur erlaubte Schutzfunktionen aktivieren; Status zurücklesen |
+| Manipulationsschutz, Richtlinie, anderer Antivirus | Keine Umgehung/Ersetzung; verständliches Ergebnis |
+| Keine Treiber, empfohlene Treiber, optionale Treiber | Auswahl stimmt mit dem Häkchen überein; keine automatische Firmware |
+| Mehrere optionale Pakete für dieselbe Hardware-ID | Manuelle Auswahl statt mehrerer Installationen |
+| Erfolgreiches Windows-/Treiberupdate mit Neustartbedarf | Countdown, Checkpoint, Anmeldung, Wiederprüfung derselben Aufgabe; frühere Aufgaben nicht wiederholen |
+| Teilfehler mit Neustartbedarf | Kein automatischer Neustart; nach manuellem Neustart bestätigtes Fortsetzen |
+| Countdown verschieben oder Fenster schließen | Kein Neustart; Fortschritt erhalten; Fortsetzen erst nach neuem Boot |
+| RunOnce blockiert oder Pfad länger als 260 Zeichen | Kein unzuverlässiger automatischer Neustart; manuell neu starten und Assistent öffnen |
+| Nach drei Neustarts weiter Neustart nötig | Automatischer Lauf angehalten; Prüfung durch Benutzer/IT |
+| GUI unterbrochen, Worker noch aktiv | An bestehenden Prozess anbinden; keine zweite Installation |
+| Worker ohne result.json, beschädigter Checkpoint | Kein falscher Erfolg; Ergebnisse bzw. Protokoll prüfen |
+| Älter als sieben Tage gespeicherte Neustartzustimmung | Kein automatisches Fortsetzen |
+| Fehler bei einer Aufgabe | Gesamtergebnis bleibt «Bitte prüfen»; erfolgreiche Einzelaufgaben sichtbar |
+| Bestehende Einzelaktionen und deren Neustart | Einzelaktionen funktionieren; keine versehentliche Wiederaufnahme eines alten gemeinsamen Laufs |
+
+IT/Test-QuickRun.ps1 prüft Ablauf, Checkpoints, Auswahlregeln, GUI-Ergebnisrouting
+und Defender-Verhalten mit simulierten Systemfunktionen. Diese Tests installieren
+keine echten Updates und ersetzen die obigen Windows-Prüfungen nicht.
+Neue und geänderte PowerShell-Dateien vor Benutzerverteilung erneut signieren.

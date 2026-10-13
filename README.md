@@ -1,6 +1,14 @@
 # WFW Update Assistant
 
-A Windows PowerShell/WPF assistant that guides users through eight update and maintenance steps. A separate browser preview lets you review the interface on macOS without running Windows operations.
+A Windows PowerShell/WPF assistant with a combined update run and separate manual maintenance steps. A browser preview lets you review the earlier interface on macOS without running Windows operations.
+
+## Version 1.3: update your computer with one start
+
+Choose **Computer aktualisieren / Update my computer** and confirm once to run Defender protection checks, supported application updates through winget, Windows updates and recommended drivers in sequence. Optional drivers have a separate checkbox. Progress is saved across restarts; each task has its own result. Windows administrator prompts may still appear.
+
+Store apps, Lenovo BIOS/firmware and optional cleanup remain separate. Automated logic and syntax checks passed; native WPF, administrator prompts, restarts and real updates still require Windows testing. See the [version 1.3 instructions](WFW_Update_Assistent%203/README.md) and [Windows test plan](WFW_Update_Assistent%203/IT/IT-Testplan.md).
+
+The macOS browser preview currently represents the earlier manual flow; it does not demonstrate the new combined run.
 
 ## Start here
 
@@ -47,6 +55,6 @@ Keep comments focused on responsibilities, state transitions and platform constr
 
 ## First launch after a download
 
-The Windows launcher checks the effective execution policy before loading the app. For a downloaded copy, it offers a one-time trust confirmation and unblocks only the five known PowerShell files in that package. Reopening that extracted copy does not require another download-unblock step. It does not change persistent execution policies or generate a digital signature.
+The Windows launcher checks the effective execution policy before loading the app. For a downloaded copy, it offers a one-time trust confirmation and unblocks only the known runtime PowerShell files in that package. Reopening that extracted copy does not require another download-unblock step. It does not change persistent execution policies or generate a digital signature.
 
 An enforced `AllSigned` policy still requires an IT-signed package, and `Restricted` still prevents script execution. The launcher reports these cases with the policy list instead of suggesting a policy bypass.

@@ -14,3 +14,20 @@
 Nicht durchgeführt: Windows-PowerShell-5.1-Laufzeitprüfung, WPF-Rendering, UAC und echte Update-Installationen.
 Die Prüfungen hier liefen unter Linux mit einem PowerShell-Grammatikparser.
 Die Windows-Abnahme ist in IT-Testplan.md beschrieben; Validieren.ps1 verwendet den nativen Parser auf dem Zielgerät.
+
+
+PRÜFUNG DES GEMEINSAMEN DURCHLAUFS · 13.10.2026 · macOS / PowerShell 7
+
+- Nativer PowerShell-Parser: Programmdateien und neue Tests erfolgreich geparst.
+- Alle XAML-Dokumente wohlgeformt; neue Steuerelemente mit GUI-Registrierung abgeglichen.
+- Test-QuickRun.ps1: Reihenfolge, unabhängige Fehler, Wiederaufnahme, Neustartgrenze,
+  validierte Checkpoints, Treiberauswahl und GUI-Ergebnisrouting erfolgreich.
+- Simulierte Defender-Aufrufe: Schutz aktivieren/zurücklesen, Manipulationsschutz,
+  Firmenrichtlinien und anderer Antivirus erfolgreich geprüft.
+- Registrierte Wiederaufnahme, alter Checkpoint, verschobener Neustart, gleicher
+  Boot und Schutz vor doppelten Workern erfolgreich simuliert.
+- Launcher enthält die neuen Laufzeitdateien in der Paket-/Signaturprüfung.
+
+Nicht durchgeführt: WPF-Darstellung, Windows PowerShell 5.1, UAC, Registry/RunOnce,
+Windows Update Agent und echte Windows-/Treiber-/Anwendungsinstallationen.
+Windows-Abnahme der Version 1.3 gemäß IT-Testplan.md bleibt erforderlich.
