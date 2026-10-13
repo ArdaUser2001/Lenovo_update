@@ -3,10 +3,14 @@ const DATA = {
   "steps": {
     "de": [
       {
-        "Title": "1 · Windows aktualisieren",
+        "Title": "1 · Computer mit einem Klick aktualisieren",
         "Mode": "Der Assistent sucht und installiert für Sie",
-        "Text": "Willkommen! Gehen Sie die acht Schritte nacheinander durch. Es startet nichts, bevor Sie eine Aktion auswählen und bestätigen.\n\n1. Speichern Sie Ihre Dokumente und schließen Sie andere Programme.\n2. Schließen Sie das Ladekabel an und verbinden Sie den Computer mit dem Internet.\n3. Klicken Sie auf «Windows-Updates starten» und lesen Sie die Rückfrage.\n\nFalls ein Neustart nötig ist, startet der Computer nach 120 Sekunden neu. «Neustart verschieben» stoppt den Countdown. Melden Sie sich danach wieder an und prüfen Sie Windows hier erneut.",
+        "Text": "1. Speichern Sie Ihre Arbeit und schließen Sie andere Programme.\n2. Schließen Sie das Ladekabel an und stellen Sie die Internetverbindung her.\n3. Klicken Sie auf «Computer aktualisieren». Lesen und bestätigen Sie die Rückfrage.\n\nDer Assistent führt die vier Prüfungen nacheinander aus. Windows kann nach Administratorrechten fragen. Bei einem nötigen Neustart sehen Sie einen Countdown von 120 Sekunden. Nach der Anmeldung am selben Konto geht es automatisch weiter; weitere Administratorabfragen können nötig sein.\n\nStore-Apps und Lenovo-Firmware prüfen Sie anschließend separat. Entfernen von Programmen bleibt freiwillig. Verschieben Sie den Programmordner bis zum Abschluss nicht.",
         "Actions": [
+          {
+            "Id": "QuickRun",
+            "Label": "Computer aktualisieren"
+          },
           {
             "Id": "Windows",
             "Label": "Windows-Updates starten"
@@ -141,10 +145,14 @@ const DATA = {
     ],
     "en": [
       {
-        "Title": "1 · Update Windows",
+        "Title": "1 · Update your computer with one click",
         "Mode": "The assistant searches and installs for you",
-        "Text": "Welcome. Work through the eight steps one after another. Nothing starts before you choose and confirm an action.\n\n1. Save your documents and close other programs.\n2. Connect the charger and make sure the computer is online.\n3. Click \"Start Windows updates\" and read the confirmation prompt.\n\nIf a restart is required, the computer restarts after 120 seconds. \"Postpone restart\" stops the countdown. Sign in again afterwards and check Windows here again.",
+        "Text": "1. Save your work and close other programs.\n2. Connect the charger and internet.\n3. Click \"Update my computer\" and confirm the prompt.\n\nThe assistant runs the four checks in sequence. Windows may request administrator approval. If a restart is needed, you see a 120-second countdown. After signing in to the same account, the run continues automatically; further administrator prompts may appear.\n\nCheck Store apps and Lenovo firmware separately afterwards. Removing programs remains optional. Keep the program folder in place until the run finishes.",
         "Actions": [
+          {
+            "Id": "QuickRun",
+            "Label": "Update my computer"
+          },
           {
             "Id": "Windows",
             "Label": "Start Windows updates"
@@ -283,7 +291,7 @@ const DATA = {
       "InstructionsHeader": "Schritt-für-Schritt-Anleitung",
       "AlternativesHeader": "Weitere Möglichkeiten",
       "SupportHeader": "Hilfe & Dokumentation",
-      "StepIntro1": "Speichern Sie Ihre Arbeit und schließen Sie das Ladekabel an. Starten Sie dann die Windows-Updates. Falls nötig, folgt ein Neustart nach 120 Sekunden; Sie können ihn verschieben.",
+      "StepIntro1": "Speichern Sie Ihre Arbeit, schließen Sie andere Programme und verbinden Sie den Computer mit Ladekabel und Internet. Ein Start führt durch Virenschutz, Programmupdates, Windows und passende Treiber.",
       "StepIntro2": "Öffnen Sie die optionalen Updates und prüfen Sie die angebotenen Treiber. Bestätigen Sie anschließend Ihre Prüfung hier.",
       "StepIntro3": "Öffnen Sie den Microsoft Store und aktualisieren Sie Ihre Apps. Bestätigen Sie danach Ihre Prüfung hier.",
       "StepIntro4": "Suchen Sie zuerst nach verfügbaren Programmupdates. Lesen Sie das Ergebnis, schließen Sie betroffene Programme und starten Sie dann die Installation.",
@@ -312,7 +320,7 @@ const DATA = {
       "Help": "Hilfe zur Bedienung",
       "Report": "Protokoll für IT",
       "CancelRestart": "Neustart verschieben",
-      "Footer": "Ardawan Khosronezhad · IT Germany   |   Version 1.2 · Pilotfassung",
+      "Footer": "Ardawan Khosronezhad · IT Germany   |   Version 1.3 · Pilotfassung",
       "DoneProgress": "{0} von 8 Bereichen bearbeitet",
       "SectionCounter": "SCHRITT {0} VON 8",
       "Summary": "Zusammenfassung ansehen",
@@ -367,7 +375,7 @@ const DATA = {
       "InstructionsHeader": "Step-by-step instructions",
       "AlternativesHeader": "More options",
       "SupportHeader": "Help & documentation",
-      "StepIntro1": "Save your work and connect the charger, then start Windows updates. If needed, a restart follows after 120 seconds; you can postpone it.",
+      "StepIntro1": "Save your work, close other programs, and connect the charger and internet. One start runs virus protection, application updates, Windows updates and matching drivers.",
       "StepIntro2": "Open optional updates and review the available drivers. Return here to confirm your check.",
       "StepIntro3": "Open Microsoft Store and update your apps. Return here to confirm your check.",
       "StepIntro4": "Search for program updates first. Review the result, close affected programs, then start installation.",
@@ -396,7 +404,7 @@ const DATA = {
       "Help": "Usage help",
       "Report": "Log for IT",
       "CancelRestart": "Postpone restart",
-      "Footer": "Ardawan Khosronezhad · IT Germany   |   Version 1.2 · pilot version",
+      "Footer": "Ardawan Khosronezhad · IT Germany   |   Version 1.3 · pilot version",
       "DoneProgress": "{0} of 8 sections completed",
       "SectionCounter": "STEP {0} OF 8",
       "Summary": "View summary",
@@ -446,6 +454,62 @@ const DATA = {
       "StateRestart": "Restart required",
       "StateScanned": "Search completed",
       "StateToolReady": "Program ready"
+    }
+  },
+  "quick": {
+    "de": {
+      "Start": "Computer aktualisieren",
+      "Continue": "Update-Durchlauf fortsetzen",
+      "Title": "Computer mit einem Klick aktualisieren",
+      "Intro": "Speichern Sie Ihre Arbeit, schließen Sie andere Programme und verbinden Sie den Computer mit Ladekabel und Internet. Ein Start führt durch Virenschutz, Programmupdates, Windows und passende Treiber.",
+      "Instructions": "1. Speichern Sie Ihre Arbeit und schließen Sie andere Programme.\n2. Schließen Sie das Ladekabel an und stellen Sie die Internetverbindung her.\n3. Klicken Sie auf «Computer aktualisieren». Lesen und bestätigen Sie die Rückfrage.\n\nDer Assistent führt die vier Prüfungen nacheinander aus. Windows kann nach Administratorrechten fragen. Bei einem nötigen Neustart sehen Sie einen Countdown von 120 Sekunden. Nach der Anmeldung am selben Konto geht es automatisch weiter; weitere Administratorabfragen können nötig sein.\n\nStore-Apps und Lenovo-Firmware prüfen Sie anschließend separat. Entfernen von Programmen bleibt freiwillig. Verschieben Sie den Programmordner bis zum Abschluss nicht.",
+      "Optional": "Auch eindeutig passende optionale Treiber installieren (optional)",
+      "OptionalHelp": "Ohne Häkchen werden empfohlene Treiber installiert. Mehrdeutige Alternativen sowie BIOS/Firmware bleiben zur manuellen Prüfung.",
+      "Results": "Ergebnisse des gemeinsamen Durchlaufs",
+      "Waiting": "Noch nicht gestartet",
+      "Running": "Läuft",
+      "Done": "Bearbeitet",
+      "Attention": "Bitte prüfen",
+      "Restart": "Neustart nötig",
+      "DefenderSecure": "Virenschutz",
+      "Install": "Programme",
+      "Windows": "Windows",
+      "Drivers": "Treiber",
+      "Confirmation": "Sind Ihre Arbeit gespeichert, andere Programme geschlossen und das Ladekabel angeschlossen?\n\nDer Assistent aktualisiert Defender, aktiviert unterstützte Schutzfunktionen soweit erlaubt, aktualisiert von winget unterstützte Programme und installiert Windows-Updates und passende Treiber. Paket- und Quellbedingungen werden akzeptiert. Firmenrichtlinien und ein anderer Virenschutz werden respektiert.\n\nBei Bedarf: Neustart nach 120 Sekunden, verschiebbar. Nach Ihrer Anmeldung wird der Durchlauf fortgesetzt. Windows kann Administratorrechte anfordern.\n\nJetzt starten?",
+      "Finished": "Der automatische Durchlauf ist beendet. Lesen Sie die vier Ergebnisse unten. Store-Apps und Lenovo-Firmware bleiben zur separaten Prüfung.",
+      "NeedsAttention": "Der Durchlauf ist beendet; mindestens ein Schritt braucht Ihre Aufmerksamkeit. Lesen Sie die Ergebnisse unten und öffnen Sie bei Bedarf die passenden Windows-Fenster.",
+      "Interrupted": "Ein früherer Durchlauf wurde unterbrochen. Mit der Startschaltfläche können Sie ihn nach Bestätigung fortsetzen.",
+      "Limit": "Nach drei Neustarts wurde der automatische Durchlauf angehalten. Bitte Windows Update prüfen und IT kontaktieren, falls weitere Neustarts verlangt werden.",
+      "RestartFirst": "Bitte zuerst über Start → Ein/Aus → Neu starten neu starten. Danach öffnen Sie den Assistenten wieder und setzen den Durchlauf fort.",
+      "Postponed": "Neustart verschoben. Der Fortschritt ist gespeichert. Starten Sie später selbst neu und öffnen Sie dann den Assistenten zum Fortsetzen.",
+      "AutoResume": "Willkommen zurück. Der gespeicherte Durchlauf wird fortgesetzt."
+    },
+    "en": {
+      "Start": "Update my computer",
+      "Continue": "Continue update run",
+      "Title": "Update your computer with one click",
+      "Intro": "Save your work, close other programs, and connect the charger and internet. One start runs virus protection, application updates, Windows updates and matching drivers.",
+      "Instructions": "1. Save your work and close other programs.\n2. Connect the charger and internet.\n3. Click \"Update my computer\" and confirm the prompt.\n\nThe assistant runs the four checks in sequence. Windows may request administrator approval. If a restart is needed, you see a 120-second countdown. After signing in to the same account, the run continues automatically; further administrator prompts may appear.\n\nCheck Store apps and Lenovo firmware separately afterwards. Removing programs remains optional. Keep the program folder in place until the run finishes.",
+      "Optional": "Also install unambiguous optional drivers (optional)",
+      "OptionalHelp": "Without this checkbox, recommended drivers are installed. Ambiguous alternatives and BIOS/firmware require manual review.",
+      "Results": "Results of the combined update run",
+      "Waiting": "Not started",
+      "Running": "Running",
+      "Done": "Processed",
+      "Attention": "Please check",
+      "Restart": "Restart required",
+      "DefenderSecure": "Virus protection",
+      "Install": "Applications",
+      "Windows": "Windows",
+      "Drivers": "Drivers",
+      "Confirmation": "Have you saved your work, closed other programs and connected the charger?\n\nThe assistant updates Defender, enables supported protection settings where permitted, updates applications supported by winget, and installs Windows updates and matching drivers. Package and source terms are accepted. Company policies and another antivirus product are respected.\n\nIf needed: a restart after 120 seconds, which you can postpone. The run continues after you sign in. Windows may request administrator approval.\n\nStart now?",
+      "Finished": "The automatic run has finished. Read the four results below. Store apps and Lenovo firmware need a separate check.",
+      "NeedsAttention": "The run has finished; at least one step needs your attention. Read the results below and open the appropriate Windows windows if needed.",
+      "Interrupted": "An earlier run was interrupted. Use the start button to confirm and continue it.",
+      "Limit": "The automatic run stopped after three restarts. Check Windows Update and contact IT if more restarts are requested.",
+      "RestartFirst": "Restart through Start → Power → Restart first. Then reopen the assistant to continue.",
+      "Postponed": "Restart postponed. Progress is saved. Restart yourself later, then reopen the assistant to continue.",
+      "AutoResume": "Welcome back. Your saved update run is continuing."
     }
   },
   "icons": {

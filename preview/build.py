@@ -73,6 +73,20 @@ def build():
     """Write checked-in assets so opening the preview requires no build step."""
     source = (APP / 'Update-Assistent.ps1').read_text(encoding='utf-8-sig')
     data = {'steps': read_steps(source), 'ui': read_translations(source)}
+    # Read the combined-run copy from its literal dictionaries; never execute PowerShell.
+    quick = (APP / 'QuickRun.Gui.ps1').read_text(encoding='utf-8-sig')
+    quick = quick.split('$script:QuickText = @{', 1)[1].split('# Make the first screen', 1)[0]
+    dictionaries = re.findall(r'(de|en)\s*=\s*@\{\s*\n(.*?)\n\s*\}', quick, re.S)
+    if len(dictionaries) != 2:
+        raise ValueError('Expected both combined-run language dictionaries.')
+    data['quick'] = {lang: fields(text) for lang, text in dictionaries}
+    for lang in ('de', 'en'):
+        q = data['quick'][lang]
+        first = data['steps'][lang][0]
+        first['Title'] = '1 · ' + q['Title']
+        first['Text'] = q['Instructions']
+        first['Actions'].insert(0, {'Id': 'QuickRun', 'Label': q['Start']})
+        data['ui'][lang]['StepIntro1'] = q['Intro']
     icon_tree = ET.parse(APP / 'Oberflaeche' / 'Icons.xaml')
     data['icons'] = {
         element.attrib['{http://schemas.microsoft.com/winfx/2006/xaml}Key']: element.text

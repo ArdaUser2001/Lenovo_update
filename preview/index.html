@@ -8,7 +8,18 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <div class="preview">macOS UI Preview · Actions are simulated; no updates or restarts are performed.</div>
+    <div class="preview">
+      <span id="previewNotice"></span>
+      <div class="preview-controls">
+        <label for="scenario" id="scenarioLabel"></label>
+        <select id="scenario">
+          <option value="success" id="scenarioSuccess"></option>
+          <option value="restart" id="scenarioRestart"></option>
+          <option value="failure" id="scenarioFailure"></option>
+        </select>
+        <button id="resetPreview" type="button"></button>
+      </div>
+    </div>
     <div class="app">
       <!-- Header: original-size brand and language choice. -->
       <header class="card">
@@ -32,13 +43,25 @@
           </div>
           <div class="body">
             <p id="intro" class="intro"></p>
+            <div id="quickOptions" hidden>
+              <label class="optional-choice"><input type="checkbox" id="optionalDrivers"><span id="optionalLabel"></span></label>
+              <p id="optionalHelp" class="help"></p>
+            </div>
             <div id="actions" class="buttons"></div>
             <div id="statusPanel" class="status">
               <div class="eyebrow" data-text="CurrentStatusLabel"></div>
               <p id="status" role="status"></p>
               <p id="hint"></p>
               <progress id="busy" hidden aria-label="Running"></progress>
+              <div class="buttons restart-actions">
+                <button id="postponeRestart" hidden type="button"></button>
+                <button id="restartPreview" hidden type="button"></button>
+              </div>
             </div>
+            <section id="quickResults" class="quick-results" hidden aria-labelledby="resultsTitle">
+              <h3 id="resultsTitle"></h3>
+              <div id="resultRows" aria-live="polite"></div>
+            </section>
             <label id="confirmation">
               <input id="confirm" type="checkbox">
               <span data-text="ConfirmText"></span>
@@ -95,8 +118,17 @@
         <button autofocus>OK</button>
       </form>
     </dialog>
+    <dialog id="startDialog">
+      <h2 id="startTitle"></h2>
+      <p id="startBody"></p>
+      <div class="buttons">
+        <button id="confirmStart" class="primary" type="button"></button>
+        <button id="cancelStart" type="button" autofocus></button>
+      </div>
+    </dialog>
     <!-- Load generated text before binding the preview behavior. -->
     <script src="data.js"></script>
+    <script src="flow.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

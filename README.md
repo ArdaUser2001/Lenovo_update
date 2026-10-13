@@ -1,6 +1,6 @@
 # WFW Update Assistant
 
-A Windows PowerShell/WPF assistant with a combined update run and separate manual maintenance steps. A browser preview lets you review the earlier interface on macOS without running Windows operations.
+A Windows PowerShell/WPF assistant with a combined update run and separate manual maintenance steps. A browser preview lets you try the combined update flow on macOS without running Windows operations.
 
 ## Version 1.3: update your computer with one start
 
@@ -8,7 +8,7 @@ Choose **Computer aktualisieren / Update my computer** and confirm once to run D
 
 Store apps, Lenovo BIOS/firmware and optional cleanup remain separate. Automated logic and syntax checks passed; native WPF, administrator prompts, restarts and real updates still require Windows testing. See the [version 1.3 instructions](WFW_Update_Assistent%203/README.md) and [Windows test plan](WFW_Update_Assistent%203/IT/IT-Testplan.md).
 
-The macOS browser preview currently represents the earlier manual flow; it does not demonstrate the new combined run.
+The macOS browser preview includes the combined run, optional-driver selection, individual results, and examples of restart continuation and application failure. All actions are simulated.
 
 ## Start here
 

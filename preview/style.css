@@ -806,3 +806,72 @@ footer {
     gap: 6px;
   }
 }
+
+/* Draft controls and combined-run results. */
+.preview {
+  padding: 8px 12px;
+}
+.preview-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.preview-controls select, .preview-controls button {
+  min-height: 32px;
+  padding: 4px 10px;
+  margin: 0;
+  font-size: 12px;
+}
+.app {
+  height: calc(100dvh - 83px);
+}
+.optional-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+#quickOptions {
+  margin-bottom: 14px;
+}
+#quickOptions input {
+  margin: 0;
+}
+.quick-results {
+  border: 1px solid var(--BorderSoftColor);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.quick-results h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+.result-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  border-top: 1px solid var(--BorderSoftColor);
+  padding: 10px 0;
+}
+.result-row p {
+  grid-column: 1 / -1;
+  font-size: 13px;
+}
+.result-state {
+  font-size: 12px;
+  font-weight: 600;
+}
+.result-row[data-outcome="Done"] .result-state { color: var(--SuccessColor); }
+.result-row[data-outcome="Attention"] .result-state,
+.result-row[data-outcome="Restart"] .result-state { color: var(--WarningColor); }
+.result-row[data-outcome="Running"] .result-state { color: var(--RunningColor); }
+.restart-actions { margin-top: 10px; }
+#startBody { white-space: pre-line; margin-bottom: 16px; }
+@media (max-width: 650px) {
+  .app { height: calc(100dvh - 125px); }
+  .result-row { grid-template-columns: 1fr; }
+}
